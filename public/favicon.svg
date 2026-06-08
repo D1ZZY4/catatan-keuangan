@@ -1,8 +1,0 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" fill="none">
-  <rect width="64" height="64" rx="16" fill="#8CC0EB"/>
-  <rect x="12" y="22" width="40" height="28" rx="6" fill="white" opacity="0.95"/>
-  <rect x="12" y="22" width="40" height="11" rx="6" fill="white"/>
-  <rect x="12" y="27" width="40" height="6" fill="white"/>
-  <circle cx="44" cy="36" r="5" fill="#8CC0EB"/>
-  <text x="32" y="18" text-anchor="middle" font-size="10" font-family="system-ui" font-weight="700" fill="white" opacity="0.9">CK</text>
-</svg>
