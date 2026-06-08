@@ -1,5 +1,9 @@
 - [Vite plugin-react version](vite-plugin-react-compat.md) — @vitejs/plugin-react v6 requires Vite 7; use v5 with Vite 6
 - [exactOptionalPropertyTypes pattern](exact-optional-props.md) — passing `T|undefined` to optional props needs conditional spread
-- [Font stack](font-stack.md) — 3-font combo: Sora (body), Space Grotesk (currency via font-display), DM Serif Display (serif); use tabular-nums on all currency displays
+- [Font stack](font-stack.md) — DM Sans (body/sans), Instrument Serif (display), JetBrains Mono (mono); old Sora/Space Grotesk/DM Serif Display were wrong
 - [Calculator architecture](calculator-arch.md) — CalculatorContext wraps entire app; AppBar uses useCalculator() to open it; no fixed-positioned button
 - [Onboarding biometric redirect fix](onboarding-biometric.md) — must block redirect with parent-level state flag BEFORE calling completeOnboarding; lifting state up is required
+- [Progress & milestones](progress.md) — M0–M16 selesai; M17 partial; M18 bug hunt selesai (TS clean, fonts fixed)
+- [Architecture decisions](architecture.md) — Context+useReducer, AES-GCM, font stack, exactOptionalPropertyTypes patterns
+- [UI audit findings](ui-audit.md) — all known UI bugs fixed (hasWebAuthn, Cell key, dead code, favicon, iOS PWA meta)
+- [Build & APK](build-log.md) — APK via Bubblewrap TWA; see build-release/BUILD-INSTRUCTIONS.md

@@ -255,8 +255,8 @@ function OverviewTab({
                   paddingAngle={2}
                   animationBegin={0}
                 >
-                  {expenseByCategory.map((entry, i) => (
-                    <Cell key={i} fill={entry.color} />
+                  {expenseByCategory.map((entry) => (
+                    <Cell key={entry.name} fill={entry.color} />
                   ))}
                 </Pie>
                 <Tooltip content={<CustomTooltip />} />

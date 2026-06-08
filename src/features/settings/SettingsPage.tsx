@@ -432,7 +432,7 @@ export function SettingsPage() {
                     : "Aktifkan agar bisa buka pakai biometrik"
               }
               right={<Toggle value={hasWebAuthn} />}
-              onClick={hasPin ? () => void handleWebAuthn() : undefined}
+              {...(hasPin ? { onClick: () => void handleWebAuthn() } : {})}
             />
           )}
 

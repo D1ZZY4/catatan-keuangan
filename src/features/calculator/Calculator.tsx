@@ -68,9 +68,9 @@ export function CalculatorSheet({ isOpen, onClose }: CalculatorSheetProps) {
     if (isOpen) {
       const id = requestAnimationFrame(() => setVisible(true));
       return () => cancelAnimationFrame(id);
-    } else {
-      setVisible(false);
     }
+    setVisible(false);
+    return undefined;
   }, [isOpen]);
 
   useEffect(() => {

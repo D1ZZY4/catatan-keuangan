@@ -13,7 +13,7 @@ import {
   WalletEmptyIllustration,
   TransactionEmptyIllustration,
 } from "@/shared/components/EmptyState";
-import { formatCurrency, formatRelative } from "@/shared/utils/format";
+import { formatCurrency } from "@/shared/utils/format";
 import { cn } from "@/shared/utils/misc";
 import type { AppOutletContext } from "@/app/AppShell";
 
@@ -353,8 +353,6 @@ export function HomePage() {
     .reduce((s, tx) => s + tx.amount, 0);
 
   const recentTransactions = transactions.slice(0, 8);
-
-  void formatRelative;
 
   return (
     <main className="pb-4">

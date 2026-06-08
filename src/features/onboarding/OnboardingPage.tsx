@@ -297,7 +297,7 @@ function SetupSlide({ onComplete, onShowBiometric, showingBiometric }: SetupSlid
         )}
       </div>
 
-      {usePIN && hasWebAuthn && (
+      {usePIN && supportsWebAuthn && (
         <div className="w-full bg-accent-primary/10 rounded-2xl px-4 py-3 flex items-center gap-3 border border-accent-primary/20">
           <Fingerprint size={20} className="text-accent-primary flex-shrink-0" />
           <p className="text-xs text-text-primary leading-snug">

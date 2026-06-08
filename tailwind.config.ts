@@ -18,9 +18,9 @@ export default {
         danger: "var(--danger)",
       },
       fontFamily: {
-        sans: ['"Sora"', "system-ui", "sans-serif"],
-        display: ['"Space Grotesk"', "system-ui", "sans-serif"],
-        serif: ['"DM Serif Display"', "serif"],
+        sans: ['"DM Sans"', "system-ui", "sans-serif"],
+        display: ['"Instrument Serif"', "Georgia", "serif"],
+        mono: ['"JetBrains Mono"', "monospace"],
       },
       fontSize: {
         xs: ["12px", { lineHeight: "1.4" }],
@@ -29,6 +29,7 @@ export default {
         lg: ["20px", { lineHeight: "1.4" }],
         xl: ["24px", { lineHeight: "1.4" }],
         "2xl": ["32px", { lineHeight: "1.4" }],
+        "3xl": ["48px", { lineHeight: "1.2" }],
       },
       borderRadius: {
         sm: "8px",

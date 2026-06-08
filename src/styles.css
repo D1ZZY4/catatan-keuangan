@@ -37,7 +37,7 @@
   body {
     background-color: var(--bg-page);
     color: var(--text-primary);
-    font-family: "Sora", system-ui, sans-serif;
+    font-family: "DM Sans", system-ui, sans-serif;
     -webkit-font-smoothing: antialiased;
     -webkit-tap-highlight-color: transparent;
     overscroll-behavior-y: none;
@@ -76,5 +76,11 @@
   }
   .safe-top {
     padding-top: max(env(safe-area-inset-top), 0px);
+  }
+  .font-display {
+    font-family: "Instrument Serif", Georgia, serif;
+  }
+  .font-mono {
+    font-family: "JetBrains Mono", monospace;
   }
 }
