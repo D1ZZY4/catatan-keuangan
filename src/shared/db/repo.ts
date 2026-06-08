@@ -1,14 +1,13 @@
-import { db, type WalletEnvelope, type TransactionEnvelope, type CategoryEnvelope } from "./db";
+import {
+  db,
+  type WalletEnvelope,
+  type TransactionEnvelope,
+  type CategoryEnvelope,
+  type BudgetEnvelope,
+  type ReminderEnvelope,
+} from "./db";
 import { decryptJSON, encryptJSON } from "../crypto/crypto";
-import type { Category, Transaction, Wallet } from "../types";
-
-/**
- * Repository helpers that wrap Dexie tables with the encryption envelope.
- *
- * Index fields (currency, walletId, type, date, …) are duplicated on the outer
- * envelope so Dexie can query them; the source of truth still lives inside the
- * encrypted blob and is the value returned to callers.
- */
+import type { Budget, Category, Reminder, Transaction, Wallet } from "../types";
 
 // ---------- Wallets ----------
 
@@ -44,13 +43,13 @@ export async function putTransaction(key: CryptoKey, tx: Transaction): Promise<v
     id: tx.id,
     type: tx.type,
     walletId: tx.walletId,
-    ...(tx.toWalletId ? { toWalletId: tx.toWalletId } : {}),
     categoryId: tx.categoryId,
     date: tx.date,
     createdAt: tx.createdAt,
     updatedAt: tx.updatedAt,
     iv: payload.iv,
     blob: payload.blob,
+    ...(tx.toWalletId !== undefined ? { toWalletId: tx.toWalletId } : {}),
   };
   await db.transactions.put(envelope);
 }
@@ -66,7 +65,11 @@ export async function listTransactionsByWallet(
   key: CryptoKey,
   walletId: string,
 ): Promise<Transaction[]> {
-  const rows = await db.transactions.where("walletId").equals(walletId).toArray();
+  const rows = await db.transactions
+    .where("walletId")
+    .equals(walletId)
+    .reverse()
+    .sortBy("date");
   return Promise.all(
     rows.map((row) => decryptJSON<Transaction>(key, { iv: row.iv, blob: row.blob })),
   );
@@ -74,6 +77,14 @@ export async function listTransactionsByWallet(
 
 export async function deleteTransaction(id: string): Promise<void> {
   await db.transactions.delete(id);
+}
+
+export async function countTransactionsByWallet(walletId: string): Promise<number> {
+  return db.transactions.where("walletId").equals(walletId).count();
+}
+
+export async function countTransactionsByCategory(categoryId: string): Promise<number> {
+  return db.transactions.where("categoryId").equals(categoryId).count();
 }
 
 // ---------- Categories ----------
@@ -100,4 +111,57 @@ export async function listCategories(key: CryptoKey): Promise<Category[]> {
 
 export async function deleteCategory(id: string): Promise<void> {
   await db.categories.delete(id);
+}
+
+// ---------- Budgets ----------
+
+export async function putBudget(key: CryptoKey, budget: Budget): Promise<void> {
+  const payload = await encryptJSON(key, budget);
+  const envelope: BudgetEnvelope = {
+    id: budget.id,
+    categoryId: budget.categoryId,
+    period: budget.period,
+    createdAt: budget.createdAt,
+    iv: payload.iv,
+    blob: payload.blob,
+  };
+  await db.budgets.put(envelope);
+}
+
+export async function listBudgets(key: CryptoKey): Promise<Budget[]> {
+  const rows = await db.budgets.toArray();
+  return Promise.all(
+    rows.map((row) => decryptJSON<Budget>(key, { iv: row.iv, blob: row.blob })),
+  );
+}
+
+export async function deleteBudget(id: string): Promise<void> {
+  await db.budgets.delete(id);
+}
+
+// ---------- Reminders ----------
+
+export async function putReminder(key: CryptoKey, reminder: Reminder): Promise<void> {
+  const payload = await encryptJSON(key, reminder);
+  const envelope: ReminderEnvelope = {
+    id: reminder.id,
+    period: reminder.period,
+    isActive: reminder.isActive ? 1 : 0,
+    dueDay: reminder.dueDay,
+    createdAt: reminder.createdAt,
+    iv: payload.iv,
+    blob: payload.blob,
+  };
+  await db.reminders.put(envelope);
+}
+
+export async function listReminders(key: CryptoKey): Promise<Reminder[]> {
+  const rows = await db.reminders.toArray();
+  return Promise.all(
+    rows.map((row) => decryptJSON<Reminder>(key, { iv: row.iv, blob: row.blob })),
+  );
+}
+
+export async function deleteReminder(id: string): Promise<void> {
+  await db.reminders.delete(id);
 }

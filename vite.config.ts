@@ -18,8 +18,7 @@ export default defineConfig(({ mode }) => ({
     react(),
     VitePWA({
       registerType: "autoUpdate",
-      devOptions: { enabled: false },
-      injectRegister: null,
+      injectRegister: "auto",
       includeAssets: ["icons/**"],
       manifest: {
         name: "Catatan Keuangan",

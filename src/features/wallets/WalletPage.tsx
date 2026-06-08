@@ -1,0 +1,201 @@
+import React, { useState } from "react";
+import { Plus, RefreshCw } from "lucide-react";
+import { useNavigate } from "react-router-dom";
+import { useAppData, computeWalletBalance } from "@/app/AppDataContext";
+import { WalletCard } from "@/shared/components/WalletCard";
+import { SkeletonCard } from "@/shared/components/SkeletonCard";
+import { EmptyState, WalletEmptyIllustration } from "@/shared/components/EmptyState";
+import { BottomSheet } from "@/shared/components/BottomSheet";
+import { AppBar } from "@/shared/components/AppBar";
+import { WalletForm } from "./WalletForm";
+import { useToast } from "@/shared/hooks/useToast";
+import { formatCurrency } from "@/shared/utils/format";
+import { countTransactionsByWallet } from "@/shared/db/repo";
+import { cn } from "@/shared/utils/misc";
+import type { Wallet } from "@/shared/types";
+
+interface ActionSheetProps {
+  wallet: Wallet | null;
+  onClose: () => void;
+  onEdit: () => void;
+  onArchive: () => void;
+  onDuplicate: () => void;
+  onDelete: () => void;
+}
+
+function WalletActionSheet({ wallet, onClose, onEdit, onArchive, onDuplicate, onDelete }: ActionSheetProps) {
+  if (!wallet) return null;
+
+  const actions = [
+    { label: "✏️ Edit Dompet", onClick: onEdit },
+    { label: wallet.isArchived ? "📤 Batalkan Arsip" : "📦 Arsipkan", onClick: onArchive },
+    { label: "📋 Duplikat Dompet", onClick: onDuplicate },
+    { label: "🗑️ Hapus", onClick: onDelete, danger: true },
+  ];
+
+  return (
+    <BottomSheet isOpen={wallet !== null} onClose={onClose} title={wallet.name}>
+      <div className="pb-6">
+        {actions.map((a) => (
+          <button
+            key={a.label}
+            onClick={() => { a.onClick(); onClose(); }}
+            className={cn(
+              "w-full text-left px-5 py-4 text-sm font-medium active:bg-bg-card transition-colors",
+              a.danger ? "text-danger" : "text-text-primary",
+            )}
+          >
+            {a.label}
+          </button>
+        ))}
+      </div>
+    </BottomSheet>
+  );
+}
+
+export function WalletPage() {
+  const navigate = useNavigate();
+  const { wallets, transactions, loading, addWallet, updateWallet, removeWallet } = useAppData();
+  const { showToast } = useToast();
+
+  const [formOpen, setFormOpen] = useState(false);
+  const [editWallet, setEditWallet] = useState<Wallet | undefined>();
+  const [actionWallet, setActionWallet] = useState<Wallet | null>(null);
+  const [showArchived, setShowArchived] = useState(false);
+
+  const activeWallets = wallets.filter((w) => !w.isArchived);
+  const archivedWallets = wallets.filter((w) => w.isArchived);
+  const netWorth = wallets
+    .filter((w) => !w.isArchived)
+    .reduce((sum, w) => sum + computeWalletBalance(w, transactions), 0);
+
+  const handleEdit = () => {
+    setEditWallet(actionWallet ?? undefined);
+    setFormOpen(true);
+  };
+
+  const handleArchive = async () => {
+    if (!actionWallet) return;
+    await updateWallet({ ...actionWallet, isArchived: !actionWallet.isArchived });
+    showToast(actionWallet.isArchived ? "Arsip dibatalkan" : "Dompet diarsipkan", "success");
+  };
+
+  const handleDuplicate = async () => {
+    if (!actionWallet) return;
+    await addWallet({
+      name: `Salinan dari ${actionWallet.name}`,
+      icon: actionWallet.icon,
+      color: actionWallet.color,
+      currency: actionWallet.currency,
+      initialBalance: 0,
+      isArchived: false,
+    });
+    showToast("Dompet berhasil diduplikat", "success");
+  };
+
+  const handleDelete = async () => {
+    if (!actionWallet) return;
+    const count = await countTransactionsByWallet(actionWallet.id);
+    if (count > 0) {
+      showToast(`Dompet ini punya ${count} transaksi. Arsipkan saja agar data tetap aman.`, "warning");
+      return;
+    }
+    await removeWallet(actionWallet.id);
+    showToast("Dompet berhasil dihapus", "success");
+  };
+
+  return (
+    <>
+      <AppBar
+        title="Dompet"
+        actions={
+          <button
+            onClick={() => { setEditWallet(undefined); setFormOpen(true); }}
+            className="w-9 h-9 rounded-full bg-accent-primary flex items-center justify-center shadow-fab active:scale-90 transition-transform"
+            aria-label="Tambah dompet"
+          >
+            <Plus size={18} className="text-white" />
+          </button>
+        }
+      />
+
+      <div className="px-4 py-3 bg-gradient-to-b from-bg-card to-bg-page border-b border-bg-card">
+        <p className="text-xs text-text-muted">Total kekayaan bersih</p>
+        <p className="text-2xl font-bold text-text-primary tabular-nums">
+          {formatCurrency(netWorth, "IDR")}
+        </p>
+      </div>
+
+      <div className="px-4 py-4 space-y-3">
+        {loading ? (
+          <div className="grid grid-cols-2 gap-3">
+            <SkeletonCard />
+            <SkeletonCard />
+            <SkeletonCard />
+            <SkeletonCard />
+          </div>
+        ) : activeWallets.length === 0 ? (
+          <EmptyState
+            illustration={<WalletEmptyIllustration />}
+            title="Belum ada dompet"
+            description="Tambahkan dompet pertamamu untuk mulai mencatat keuangan"
+            action={{
+              label: "+ Tambah Dompet",
+              onClick: () => { setEditWallet(undefined); setFormOpen(true); },
+            }}
+          />
+        ) : (
+          <div className="grid grid-cols-2 gap-3">
+            {activeWallets.map((w) => (
+              <WalletCard
+                key={w.id}
+                wallet={w}
+                balance={computeWalletBalance(w, transactions)}
+                onClick={() => navigate(`/wallets/${w.id}`)}
+                onLongPress={() => setActionWallet(w)}
+              />
+            ))}
+          </div>
+        )}
+
+        {archivedWallets.length > 0 && (
+          <div className="pt-2">
+            <button
+              onClick={() => setShowArchived((v) => !v)}
+              className="text-sm text-text-muted py-2 flex items-center gap-1"
+            >
+              {showArchived ? "▼" : "▶"} Dompet Diarsipkan ({archivedWallets.length})
+            </button>
+            {showArchived && (
+              <div className="grid grid-cols-2 gap-3 mt-2">
+                {archivedWallets.map((w) => (
+                  <WalletCard
+                    key={w.id}
+                    wallet={w}
+                    balance={computeWalletBalance(w, transactions)}
+                    onLongPress={() => setActionWallet(w)}
+                  />
+                ))}
+              </div>
+            )}
+          </div>
+        )}
+      </div>
+
+      <WalletForm
+        isOpen={formOpen}
+        onClose={() => { setFormOpen(false); setEditWallet(undefined); }}
+        {...(editWallet !== undefined ? { editWallet } : {})}
+      />
+
+      <WalletActionSheet
+        wallet={actionWallet}
+        onClose={() => setActionWallet(null)}
+        onEdit={handleEdit}
+        onArchive={() => void handleArchive()}
+        onDuplicate={() => void handleDuplicate()}
+        onDelete={() => void handleDelete()}
+      />
+    </>
+  );
+}

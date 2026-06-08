@@ -1,0 +1,2 @@
+- [Vite plugin-react version](vite-plugin-react-compat.md) — @vitejs/plugin-react v6 requires Vite 7; use v5 with Vite 6
+- [exactOptionalPropertyTypes pattern](exact-optional-props.md) — passing `T|undefined` to optional props needs conditional spread

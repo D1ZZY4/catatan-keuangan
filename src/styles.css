@@ -55,6 +55,13 @@
 }
 
 @layer utilities {
+  .no-scrollbar {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+  .no-scrollbar::-webkit-scrollbar {
+    display: none;
+  }
   .skeleton-shimmer {
     background-image: linear-gradient(
       90deg,

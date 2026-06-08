@@ -1,22 +1,15 @@
-import Dexie, { type Table } from "dexie";
+import Dexie, { type EntityTable } from "dexie";
 
-/**
- * Encrypted record envelope.
- *
- * Index fields (id, walletId, date, type, etc.) are stored in plaintext on the
- * outer envelope so Dexie can index/query them. The full record (including
- * amount, note, attachments, person names) lives inside the encrypted `blob`.
- */
 export interface EncryptedEnvelope {
   id: string;
-  iv: string; // base64
-  blob: string; // base64 AES-GCM ciphertext
+  iv: string;
+  blob: string;
   createdAt: number;
 }
 
 export interface WalletEnvelope extends EncryptedEnvelope {
   currency: string;
-  isArchived: 0 | 1; // Dexie can't index booleans portably
+  isArchived: 0 | 1;
 }
 
 export interface TransactionEnvelope extends EncryptedEnvelope {
@@ -46,7 +39,7 @@ export interface ReminderEnvelope extends EncryptedEnvelope {
 
 export interface PriceCacheRow {
   key: string;
-  value: string; // JSON
+  value: string;
   fetchedAt: number;
 }
 
@@ -56,26 +49,26 @@ export interface SettingRow {
 }
 
 export interface AuthRow {
-  key: string; // 'salt' | 'pinHash' | 'webauthnCredentialId' | 'hasPin'
+  key: string;
   value: string;
 }
 
 export interface NotificationSentRow {
-  id?: number;
+  id: number;
   key: string;
   sentAt: number;
 }
 
 class CatatKeuDB extends Dexie {
-  wallets!: Table<WalletEnvelope, string>;
-  transactions!: Table<TransactionEnvelope, string>;
-  categories!: Table<CategoryEnvelope, string>;
-  budgets!: Table<BudgetEnvelope, string>;
-  reminders!: Table<ReminderEnvelope, string>;
-  price_cache!: Table<PriceCacheRow, string>;
-  settings!: Table<SettingRow, string>;
-  auth!: Table<AuthRow, string>;
-  notifications_sent!: Table<NotificationSentRow, number>;
+  wallets!: EntityTable<WalletEnvelope, "id">;
+  transactions!: EntityTable<TransactionEnvelope, "id">;
+  categories!: EntityTable<CategoryEnvelope, "id">;
+  budgets!: EntityTable<BudgetEnvelope, "id">;
+  reminders!: EntityTable<ReminderEnvelope, "id">;
+  price_cache!: EntityTable<PriceCacheRow, "key">;
+  settings!: EntityTable<SettingRow, "key">;
+  auth!: EntityTable<AuthRow, "key">;
+  notifications_sent!: EntityTable<NotificationSentRow, "id">;
 
   constructor() {
     super("CatatKeuDB");
