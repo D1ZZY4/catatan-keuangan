@@ -3,6 +3,7 @@ import { Link } from "react-router-dom";
 import {
   Archive,
   Bell,
+  Check,
   ChevronRight,
   Fingerprint,
   Lock,
@@ -339,9 +340,10 @@ export function SettingsPage() {
         <div className="pb-6">
           {Object.entries(autoLockLabels).map(([secs, label]) => (
             <button key={secs} onClick={() => void handleAutoLock(Number(secs))}
-              className={cn("w-full text-left px-5 py-3.5 text-sm font-medium transition-colors",
+              className={cn("w-full flex items-center px-5 py-3.5 text-sm font-medium transition-colors",
                 autoLockSeconds === Number(secs) ? "text-accent-primary bg-accent-primary/5" : "text-text-primary active:bg-bg-card")}>
-              {label} {autoLockSeconds === Number(secs) && "✓"}
+              <span className="flex-1">{label}</span>
+              {autoLockSeconds === Number(secs) && <Check size={16} className="text-accent-primary" />}
             </button>
           ))}
         </div>

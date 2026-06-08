@@ -1,5 +1,5 @@
 import React, { useMemo, useState } from "react";
-import { Filter, Search } from "lucide-react";
+import { Filter, Pencil, Search, Trash2 } from "lucide-react";
 import { useOutletContext } from "react-router-dom";
 import { useAppData } from "@/app/AppDataContext";
 import { AppBar } from "@/shared/components/AppBar";
@@ -201,15 +201,17 @@ export function TransactionPage() {
                 setSelectedTx(null);
               }
             }}
-            className="w-full text-left px-5 py-4 text-sm text-text-primary active:bg-bg-card"
+            className="w-full flex items-center gap-3 px-5 py-4 text-sm text-text-primary active:bg-bg-card"
           >
-            ✏️ Edit Transaksi
+            <Pencil size={16} className="flex-shrink-0" />
+            Edit Transaksi
           </button>
           <button
             onClick={() => void handleDelete()}
-            className="w-full text-left px-5 py-4 text-sm text-danger active:bg-bg-card"
+            className="w-full flex items-center gap-3 px-5 py-4 text-sm text-danger active:bg-bg-card"
           >
-            🗑️ Hapus Transaksi
+            <Trash2 size={16} className="flex-shrink-0" />
+            Hapus Transaksi
           </button>
         </div>
       </BottomSheet>

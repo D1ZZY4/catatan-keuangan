@@ -1,5 +1,5 @@
 import React, { useMemo, useState } from "react";
-import { Plus, RefreshCw, WifiOff } from "lucide-react";
+import { Archive, Copy, Pencil, Plus, RefreshCw, Trash2 as Trash, Undo2, WifiOff } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { useAppData, computeWalletBalance } from "@/app/AppDataContext";
 import { WalletCard } from "@/shared/components/WalletCard";
@@ -27,11 +27,11 @@ interface ActionSheetProps {
 function WalletActionSheet({ wallet, onClose, onEdit, onArchive, onDuplicate, onDelete }: ActionSheetProps) {
   if (!wallet) return null;
 
-  const actions = [
-    { label: "✏️ Edit Dompet", onClick: onEdit },
-    { label: wallet.isArchived ? "📤 Batalkan Arsip" : "📦 Arsipkan", onClick: onArchive },
-    { label: "📋 Duplikat Dompet", onClick: onDuplicate },
-    { label: "🗑️ Hapus", onClick: onDelete, danger: true },
+  const actions: { label: string; Icon: React.ElementType; onClick: () => void; danger?: true }[] = [
+    { label: "Edit Dompet", Icon: Pencil, onClick: onEdit },
+    { label: wallet.isArchived ? "Batalkan Arsip" : "Arsipkan", Icon: wallet.isArchived ? Undo2 : Archive, onClick: onArchive },
+    { label: "Duplikat Dompet", Icon: Copy, onClick: onDuplicate },
+    { label: "Hapus Dompet", Icon: Trash, onClick: onDelete, danger: true },
   ];
 
   return (
@@ -42,10 +42,11 @@ function WalletActionSheet({ wallet, onClose, onEdit, onArchive, onDuplicate, on
             key={a.label}
             onClick={() => { a.onClick(); onClose(); }}
             className={cn(
-              "w-full text-left px-5 py-4 text-sm font-medium active:bg-bg-card transition-colors",
+              "w-full flex items-center gap-3 px-5 py-4 text-sm font-medium active:bg-bg-card transition-colors",
               a.danger ? "text-danger" : "text-text-primary",
             )}
           >
+            <a.Icon size={16} className="flex-shrink-0" />
             {a.label}
           </button>
         ))}

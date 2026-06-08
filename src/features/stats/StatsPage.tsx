@@ -1,4 +1,5 @@
 import React, { useMemo, useState } from "react";
+import { Check, Users } from "lucide-react";
 import {
   AreaChart,
   Area,
@@ -361,8 +362,8 @@ function DebtTab() {
   if (debtTx.length === 0) {
     return (
       <div className="px-4 py-8 flex flex-col items-center gap-3 text-center">
-        <div className="w-16 h-16 rounded-full bg-bg-card flex items-center justify-center text-2xl">
-          🤝
+        <div className="w-16 h-16 rounded-full bg-bg-card flex items-center justify-center">
+          <Users size={28} className="text-text-muted" />
         </div>
         <p className="text-sm font-semibold text-text-primary">Tidak ada hutang/piutang</p>
         <p className="text-xs text-text-muted max-w-xs">
@@ -436,9 +437,10 @@ function DebtTab() {
                 onClick={() => {
                   openTransactionForm("debt_repay");
                 }}
-                className="w-full py-2 bg-success/15 text-success rounded-lg text-xs font-semibold active:scale-95 transition-transform"
+                className="w-full py-2 bg-success/15 text-success rounded-lg text-xs font-semibold active:scale-95 transition-transform flex items-center justify-center gap-1.5"
               >
-                ✓ Tandai Lunas
+                <Check size={13} />
+                Tandai Lunas
               </button>
             )}
           </div>

@@ -1,5 +1,5 @@
 import React, { useMemo, useState } from "react";
-import { Plus, Trash2, AlertTriangle } from "lucide-react";
+import { AlertTriangle, Pencil, Plus, Trash2 } from "lucide-react";
 import { AppBar } from "@/shared/components/AppBar";
 import { BottomSheet } from "@/shared/components/BottomSheet";
 import { ProgressBar } from "@/shared/components/ProgressBar";
@@ -354,10 +354,10 @@ export function BudgetPage() {
                       setEditBudget(budget);
                       setFormOpen(true);
                     }}
-                    className="w-8 h-8 rounded-lg flex items-center justify-center text-text-muted active:bg-bg-page transition-colors text-xs font-bold"
+                    className="w-8 h-8 rounded-lg flex items-center justify-center text-text-muted active:bg-bg-page transition-colors"
                     aria-label="Edit anggaran"
                   >
-                    ✏️
+                    <Pencil size={14} />
                   </button>
                   <button
                     onClick={() => setDeleteConfirm(budget)}

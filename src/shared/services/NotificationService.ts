@@ -128,7 +128,7 @@ class NotificationService {
           ? ` — ${formatCurrency(reminder.amount, reminder.currency)}`
           : "";
 
-      this.send(`🔔 ${reminder.name}`, `Jatuh tempo ${whenStr}${amountStr}`);
+      this.send(reminder.name, `Jatuh tempo ${whenStr}${amountStr}`);
       await this.markSent(notifKey);
     }
   }

@@ -13,33 +13,38 @@ const NAV_ITEMS = [
 
 export function BottomNav() {
   return (
-    <nav className="fixed bottom-0 left-0 right-0 z-40 bg-bg-surface border-t border-bg-card safe-bottom">
-      <div className="flex items-stretch h-14">
+    <nav
+      className="fixed bottom-0 left-0 right-0 z-40 bg-bg-surface border-t border-bg-card safe-bottom"
+      aria-label="Navigasi utama"
+    >
+      <div className="flex items-center justify-around h-[58px] px-1">
         {NAV_ITEMS.map(({ to, label, Icon, exact }) => (
           <NavLink
             key={to}
             to={to}
             end={exact}
-            className={({ isActive }) =>
-              cn(
-                "flex-1 flex flex-col items-center justify-center gap-0.5 transition-colors relative",
-                "min-h-[44px] active:scale-95",
-                isActive
-                  ? "text-accent-primary"
-                  : "text-text-muted hover:text-text-primary",
-              )
-            }
+            className="flex-1 flex items-center justify-center min-h-[44px]"
+            aria-label={label}
           >
             {({ isActive }) => (
-              <>
-                {isActive && (
-                  <span className="absolute top-0 left-1/2 -translate-x-1/2 w-8 h-0.5 rounded-full bg-accent-primary" />
+              <div
+                className={cn(
+                  "flex items-center gap-1.5 px-3 py-1.5 rounded-full transition-all duration-200",
+                  isActive
+                    ? "bg-accent-primary/15 text-accent-primary"
+                    : "text-text-muted hover:text-text-primary active:scale-90",
                 )}
-                <Icon size={20} strokeWidth={isActive ? 2.5 : 2} />
-                <span className={cn("text-[10px] font-medium leading-none", isActive ? "font-semibold" : "")}>
-                  {label}
-                </span>
-              </>
+              >
+                <Icon
+                  size={isActive ? 18 : 20}
+                  strokeWidth={isActive ? 2.5 : 1.75}
+                />
+                {isActive && (
+                  <span className="text-xs font-semibold leading-none whitespace-nowrap">
+                    {label}
+                  </span>
+                )}
+              </div>
             )}
           </NavLink>
         ))}

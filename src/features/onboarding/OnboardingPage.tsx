@@ -53,9 +53,9 @@ function Slide3Illustration() {
     { x: 30, y: 40, color: "#2E7D32", label: "+" },
     { x: 100, y: 40, color: "#C62828", label: "-" },
     { x: 170, y: 40, color: "#1976D2", label: "⇄" },
-    { x: 30, y: 120, color: "#8E24AA", label: "💰" },
-    { x: 100, y: 120, color: "#E65100", label: "📊" },
-    { x: 170, y: 120, color: "#00897B", label: "🏦" },
+    { x: 30, y: 120, color: "#8E24AA", label: "Rp" },
+    { x: 100, y: 120, color: "#E65100", label: "%" },
+    { x: 170, y: 120, color: "#00897B", label: "Bk" },
   ];
   return (
     <svg width="220" height="200" viewBox="0 0 220 200" fill="none">
@@ -288,7 +288,7 @@ export function OnboardingPage() {
         ) : (
           <div className="w-full max-w-sm animate-fade-in">
             <h1 className="text-2xl font-semibold text-text-primary text-center mb-6">
-              Hampir siap! 🎉
+              Hampir siap!
             </h1>
             <SetupSlide onComplete={completeOnboarding} />
           </div>

@@ -217,7 +217,7 @@ export function HomePage() {
   return (
     <main className="pb-4">
       <div className="px-4 pt-14 pb-5 bg-gradient-to-b from-bg-card to-bg-page">
-        <p className="text-xs text-text-muted mb-1">Selamat datang, {userName} 👋</p>
+        <p className="text-xs text-text-muted mb-1">Selamat datang, {userName}</p>
         <p className="text-2xl font-bold text-text-primary tabular-nums">
           {formatCurrency(netWorth, "IDR")}
         </p>
