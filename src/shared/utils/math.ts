@@ -2,7 +2,7 @@ import { create, all } from "mathjs";
 
 // Restricted mathjs instance: only number arithmetic, no symbolic / matrix / unit
 // surface area, no `import`/`createUnit` so user expressions can't extend it.
-const math = create(all, { number: "number" });
+const math = create(all!, { number: "number" });
 
 math.import(
   {
