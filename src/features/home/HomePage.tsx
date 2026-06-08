@@ -1,5 +1,5 @@
 import React, { useMemo, useState } from "react";
-import { Bell, ChevronRight, RefreshCw, TrendingDown, TrendingUp } from "lucide-react";
+import { Bell, ChevronRight, TrendingDown, TrendingUp } from "lucide-react";
 import { useOutletContext, Link } from "react-router-dom";
 import { useAuth } from "@/app/AuthContext";
 import { useAppData, computeWalletBalance } from "@/app/AppDataContext";
@@ -61,7 +61,6 @@ function WalletCardWithSparkline({ wallet }: { wallet: ReturnType<typeof useAppD
 
 function BudgetRow() {
   const { budgets, transactions, categories } = useAppData();
-  const { openTransactionForm } = useOutletContext<AppOutletContext>();
 
   const now = new Date();
   const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1).getTime();
@@ -85,7 +84,7 @@ function BudgetRow() {
     <section className="space-y-2">
       <div className="flex items-center justify-between px-4">
         <h2 className="text-sm font-semibold text-text-primary">Anggaran Bulan Ini</h2>
-        <Link to="/settings/categories" className="text-xs text-accent-primary font-medium">
+        <Link to="/budgets" className="text-xs text-accent-primary font-medium">
           Kelola
         </Link>
       </div>
@@ -111,12 +110,12 @@ function BudgetRow() {
             </div>
           </div>
         ))}
-        <button
-          onClick={() => openTransactionForm("expense")}
+        <Link
+          to="/budgets"
           className="flex-shrink-0 w-[160px] border-2 border-dashed border-bg-card rounded-xl p-3 flex items-center justify-center text-xs text-text-muted active:bg-bg-card transition-colors"
         >
           + Tambah Anggaran
-        </button>
+        </Link>
       </div>
     </section>
   );
@@ -211,6 +210,9 @@ export function HomePage() {
     .reduce((s, tx) => s + tx.amount, 0);
 
   const recentTransactions = transactions.slice(0, 8);
+
+  // suppress unused import warning — formatRelative used in TransactionListItem context
+  void formatRelative;
 
   return (
     <main className="pb-4">

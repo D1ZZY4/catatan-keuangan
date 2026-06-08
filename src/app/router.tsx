@@ -36,6 +36,9 @@ const ReminderPage = lazy(() =>
 const BackupPage = lazy(() =>
   import("@/features/backup/BackupPage").then((m) => ({ default: m.BackupPage })),
 );
+const BudgetPage = lazy(() =>
+  import("@/features/budgets/BudgetPage").then((m) => ({ default: m.BudgetPage })),
+);
 
 function PageFallback() {
   return (
@@ -100,6 +103,14 @@ export const router = createBrowserRouter(
           element: (
             <W>
               <WalletDetail />
+            </W>
+          ),
+        },
+        {
+          path: "budgets",
+          element: (
+            <W>
+              <BudgetPage />
             </W>
           ),
         },

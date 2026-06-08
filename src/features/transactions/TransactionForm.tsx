@@ -42,6 +42,7 @@ interface TransactionFormProps {
   onClose: () => void;
   defaultType?: TransactionType;
   editTransaction?: Transaction;
+  prefill?: { amount?: number; note?: string; date?: number };
 }
 
 function WalletSelector({
@@ -84,22 +85,28 @@ export function TransactionForm({
   onClose,
   defaultType = "expense",
   editTransaction,
+  prefill,
 }: TransactionFormProps) {
   const { wallets, categories, addTransaction, updateTransaction } = useAppData();
   const { showToast } = useToast();
 
-  const [step, setStep] = useState<Step>(editTransaction ? 3 : 1);
+  const hasPrefill = prefill !== undefined && (prefill.amount !== undefined || prefill.note !== undefined);
+  const [step, setStep] = useState<Step>(editTransaction ? 3 : hasPrefill ? 3 : 1);
   const [form, setForm] = useState<FormState>(() => {
     const def: FormState = {
       type: editTransaction?.type ?? defaultType,
-      amountRaw: editTransaction ? String(editTransaction.amount) : "",
-      amount: editTransaction?.amount ?? 0,
+      amountRaw: editTransaction
+        ? String(editTransaction.amount)
+        : prefill?.amount !== undefined
+          ? String(prefill.amount)
+          : "",
+      amount: editTransaction?.amount ?? prefill?.amount ?? 0,
       categoryId: editTransaction?.categoryId ?? "",
       walletId:
         editTransaction?.walletId ?? wallets.find((w) => !w.isArchived)?.id ?? "",
       toWalletId: editTransaction?.toWalletId ?? "",
-      date: editTransaction?.date ?? Date.now(),
-      note: editTransaction?.note ?? "",
+      date: editTransaction?.date ?? prefill?.date ?? Date.now(),
+      note: editTransaction?.note ?? prefill?.note ?? "",
       linkedPersonName: editTransaction?.linkedPersonName ?? "",
       linkedPersonPhone: editTransaction?.linkedPersonPhone ?? "",
     };

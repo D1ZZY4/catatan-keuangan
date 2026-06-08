@@ -1,5 +1,5 @@
-import React, { useState } from "react";
-import { Plus, RefreshCw } from "lucide-react";
+import React, { useMemo, useState } from "react";
+import { Plus, RefreshCw, WifiOff } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { useAppData, computeWalletBalance } from "@/app/AppDataContext";
 import { WalletCard } from "@/shared/components/WalletCard";
@@ -9,7 +9,8 @@ import { BottomSheet } from "@/shared/components/BottomSheet";
 import { AppBar } from "@/shared/components/AppBar";
 import { WalletForm } from "./WalletForm";
 import { useToast } from "@/shared/hooks/useToast";
-import { formatCurrency } from "@/shared/utils/format";
+import { usePrices } from "@/shared/hooks/usePrices";
+import { formatCurrency, formatRelative } from "@/shared/utils/format";
 import { countTransactionsByWallet } from "@/shared/db/repo";
 import { cn } from "@/shared/utils/misc";
 import type { Wallet } from "@/shared/types";
@@ -69,6 +70,25 @@ export function WalletPage() {
     .filter((w) => !w.isArchived)
     .reduce((sum, w) => sum + computeWalletBalance(w, transactions), 0);
 
+  const nonBaseCurrencies = useMemo(
+    () => [...new Set(activeWallets.map((w) => w.currency).filter((c) => c !== "IDR"))],
+    [activeWallets],
+  );
+
+  const { prices, loading: pricesLoading, stale, lastUpdated, refresh } = usePrices(
+    nonBaseCurrencies,
+    "IDR",
+  );
+
+  const getConvertedLabel = (wallet: Wallet): string | undefined => {
+    if (wallet.currency === "IDR") return undefined;
+    const rate = prices[wallet.currency];
+    if (rate === null || rate === undefined) return undefined;
+    const balance = computeWalletBalance(wallet, transactions);
+    const converted = balance * rate;
+    return `≈ ${formatCurrency(converted, "IDR")}`;
+  };
+
   const handleEdit = () => {
     setEditWallet(actionWallet ?? undefined);
     setFormOpen(true);
@@ -109,13 +129,30 @@ export function WalletPage() {
       <AppBar
         title="Dompet"
         actions={
-          <button
-            onClick={() => { setEditWallet(undefined); setFormOpen(true); }}
-            className="w-9 h-9 rounded-full bg-accent-primary flex items-center justify-center shadow-fab active:scale-90 transition-transform"
-            aria-label="Tambah dompet"
-          >
-            <Plus size={18} className="text-white" />
-          </button>
+          <div className="flex items-center gap-2">
+            {nonBaseCurrencies.length > 0 && (
+              <button
+                onClick={() => void refresh()}
+                className={cn(
+                  "w-9 h-9 rounded-full bg-bg-card flex items-center justify-center shadow-card active:scale-90 transition-transform",
+                  pricesLoading && "opacity-50 pointer-events-none",
+                )}
+                aria-label="Perbarui harga"
+              >
+                <RefreshCw
+                  size={16}
+                  className={cn("text-text-muted", pricesLoading && "animate-spin")}
+                />
+              </button>
+            )}
+            <button
+              onClick={() => { setEditWallet(undefined); setFormOpen(true); }}
+              className="w-9 h-9 rounded-full bg-accent-primary flex items-center justify-center shadow-fab active:scale-90 transition-transform"
+              aria-label="Tambah dompet"
+            >
+              <Plus size={18} className="text-white" />
+            </button>
+          </div>
         }
       />
 
@@ -124,6 +161,20 @@ export function WalletPage() {
         <p className="text-2xl font-bold text-text-primary tabular-nums">
           {formatCurrency(netWorth, "IDR")}
         </p>
+        {nonBaseCurrencies.length > 0 && (
+          <div className="flex items-center gap-1.5 mt-1">
+            {stale ? (
+              <div className="flex items-center gap-1 text-[10px] text-warning">
+                <WifiOff size={10} />
+                <span>Mode Offline — harga tidak diperbarui</span>
+              </div>
+            ) : lastUpdated !== null ? (
+              <p className="text-[10px] text-text-muted">
+                Harga diperbarui {formatRelative(lastUpdated)}
+              </p>
+            ) : null}
+          </div>
+        )}
       </div>
 
       <div className="px-4 py-4 space-y-3">
@@ -146,15 +197,19 @@ export function WalletPage() {
           />
         ) : (
           <div className="grid grid-cols-2 gap-3">
-            {activeWallets.map((w) => (
-              <WalletCard
-                key={w.id}
-                wallet={w}
-                balance={computeWalletBalance(w, transactions)}
-                onClick={() => navigate(`/wallets/${w.id}`)}
-                onLongPress={() => setActionWallet(w)}
-              />
-            ))}
+            {activeWallets.map((w) => {
+              const label = getConvertedLabel(w);
+              return (
+                <WalletCard
+                  key={w.id}
+                  wallet={w}
+                  balance={computeWalletBalance(w, transactions)}
+                  onClick={() => navigate(`/wallets/${w.id}`)}
+                  onLongPress={() => setActionWallet(w)}
+                  {...(label !== undefined ? { convertedLabel: label } : {})}
+                />
+              );
+            })}
           </div>
         )}
 
