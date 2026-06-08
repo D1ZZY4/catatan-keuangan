@@ -1,103 +1,134 @@
-# Instruksi Build APK — Catatan Keuangan
+# Cara Build APK Catatan Keuangan
 
-Aplikasi ini adalah PWA (Progressive Web App) yang dapat dibungkus menjadi APK distribusi mandiri
-menggunakan **Bubblewrap CLI** (Trusted Web Activity / TWA).
-
-## Prasyarat
-
-| Komponen | Versi |
-|---|---|
-| Node.js | 18+ |
-| JDK | 17+ |
-| Android SDK Build Tools | 34+ |
-| Bubblewrap CLI | latest |
-
-## Langkah 1 — Build PWA
-
-```bash
-bun run build
-# Output: dist/
-```
-
-Deploy `dist/` ke hosting statis dengan HTTPS (wajib untuk TWA).
-Contoh: Replit Deployments, Vercel, Netlify, GitHub Pages.
-
-## Langkah 2 — Install Bubblewrap
-
-```bash
-npm install -g @bubblewrap/cli
-```
-
-## Langkah 3 — Inisialisasi TWA Project
-
-```bash
-mkdir catatan-keuangan-apk && cd catatan-keuangan-apk
-bubblewrap init --manifest https://YOUR_DOMAIN/manifest.webmanifest
-```
-
-Isi saat diminta:
-- **Package ID**: `id.catatankeuangan.app`
-- **App Name**: `Catatan Keuangan`
-- **Short Name**: `CatatKeu`
-- **Host**: domain HTTPS kamu
-- **Start URL**: `/`
-- **Display**: `standalone`
-- **Status Bar Color**: `#FFF9D2`
-- **Background Color**: `#FFF9D2`
-- **Icon**: path ke `icon-512.png`
-
-## Langkah 4 — Generate Keystore (hanya pertama kali)
-
-```bash
-keytool -genkeypair \
-  -alias catatkeu-release \
-  -keyalg RSA \
-  -keysize 2048 \
-  -validity 9125 \
-  -keystore catatkeu-release.keystore
-```
-
-Simpan keystore dan password dengan aman — dibutuhkan untuk setiap update.
-
-## Langkah 5 — Build APK
-
-```bash
-bubblewrap build
-# Output: app-release-signed.apk
-```
-
-## Langkah 6 — Verifikasi Digital Asset Links
-
-Tambahkan file berikut di server HTTPS kamu:
-
-**`https://YOUR_DOMAIN/.well-known/assetlinks.json`**
-```json
-[{
-  "relation": ["delegate_permission/common.handle_all_urls"],
-  "target": {
-    "namespace": "android_app",
-    "package_name": "id.catatankeuangan.app",
-    "sha256_cert_fingerprints": ["FINGERPRINT_DARI_KEYSTORE"]
-  }
-}]
-```
-
-Dapatkan fingerprint:
-```bash
-keytool -list -v -keystore catatkeu-release.keystore -alias catatkeu-release
-```
-
-## Distribusi
-
-APK dapat didistribusikan langsung ke pengguna tanpa Play Store:
-- Kirim file APK via WhatsApp / Telegram / Google Drive
-- Pengguna perlu mengaktifkan "Instal dari sumber tidak dikenal" di pengaturan HP
-
-## Ukuran APK
-
-APK TWA sangat ringan (biasanya 1-3 MB) karena hanya berisi wrapper;
-semua kode aplikasi diambil dari PWA yang di-deploy.
+Ada 3 cara mendapatkan APK. Pilih yang paling mudah bagimu.
 
 ---
 
-*Dibuat otomatis oleh Catatan Keuangan build system.*
+## Cara 1 — GitHub Actions (PALING MUDAH, otomatis)
+
+APK dibangun otomatis di cloud tanpa perlu install apapun di komputermu.
+
+### Langkah:
+
+1. **Push kode ke GitHub**
+   ```bash
+   git init
+   git add .
+   git commit -m "Catatan Keuangan"
+   git remote add origin https://github.com/USERNAME/catatan-keuangan.git
+   git push -u origin main
+   ```
+
+2. **Buka tab Actions di GitHub**
+   → Klik workflow **"Build Android APK"** yang sedang berjalan
+
+3. **Tunggu ~5 menit** sampai selesai (tanda centang hijau ✓)
+
+4. **Download APK**
+   Scroll ke bawah di halaman run → Klik **"catatan-keuangan-debug"** → Extract ZIP → install `app-debug.apk`
+
+5. **Install di HP Android**
+   - Kirim file APK ke HP (WhatsApp, kabel USB, Google Drive, dll)
+   - Tap file APK → Izinkan "Install dari sumber tidak dikenal"
+   - Buka **Catatan Keuangan** 🎉
+
+> File workflow sudah ada di `.github/workflows/build-apk.yml` — tidak perlu konfigurasi tambahan.
+
+---
+
+## Cara 2 — Android Studio (Lokal)
+
+### Prasyarat:
+- [Android Studio](https://developer.android.com/studio) terinstall
+- Node.js >= 18 + Bun
+
+### Langkah:
+
+```bash
+# 1. Install dependencies
+bun install
+
+# 2. Build web app
+bun run build
+
+# 3. Sync ke Android project
+bunx cap sync android
+
+# 4. Buka di Android Studio
+bunx cap open android
+```
+
+Di Android Studio:
+- Tunggu Gradle sync selesai (pertama kali ~5 menit)
+- Menu: **Build → Build Bundle(s) / APK(s) → Build APK(s)**
+- APK ada di: `android/app/build/outputs/apk/debug/app-debug.apk`
+
+---
+
+## Cara 3 — Command Line (Lokal, tanpa Android Studio)
+
+### Prasyarat:
+- JDK 17+: `java -version`
+- Android SDK (ANDROID_HOME harus di-set)
+- Bun + Node.js >= 18
+
+```bash
+# Build web app
+bun run build
+
+# Sync Capacitor
+bunx cap sync android
+
+# Build APK
+cd android
+chmod +x gradlew
+./gradlew assembleDebug
+
+# APK ada di:
+# android/app/build/outputs/apk/debug/app-debug.apk
+```
+
+---
+
+## Release APK (Signed, untuk distribusi / Play Store)
+
+```bash
+# 1. Buat keystore (sekali saja)
+keytool -genkeypair -v \
+  -keystore release-key.keystore \
+  -alias catatan-keuangan \
+  -keyalg RSA -keysize 2048 -validity 10000
+
+# 2. Build release APK
+cd android
+./gradlew assembleRelease \
+  -Pandroid.injected.signing.store.file=../release-key.keystore \
+  -Pandroid.injected.signing.store.password=YOUR_STORE_PASS \
+  -Pandroid.injected.signing.key.alias=catatan-keuangan \
+  -Pandroid.injected.signing.key.password=YOUR_KEY_PASS
+```
+
+---
+
+## Update APK setelah ubah kode
+
+```bash
+bun run build           # Rebuild web app
+bunx cap sync android   # Sync ke Android project
+# Lalu build ulang via Android Studio atau ./gradlew
+```
+
+---
+
+## Info Aplikasi
+
+| Properti | Nilai |
+|---|---|
+| App ID | `id.catatankeuangan.app` |
+| App Name | `Catatan Keuangan` |
+| Min Android | API 24 (Android 7.0) |
+| Target Android | API 35 (Android 15) |
+| Capacitor | v7 |
+| Framework | Capacitor (web assets bundled dalam APK) |
+
+> APK Capacitor menyertakan seluruh kode web di dalam APK — tidak memerlukan koneksi internet setelah install.

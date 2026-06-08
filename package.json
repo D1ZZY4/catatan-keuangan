@@ -13,6 +13,9 @@
     "test:coverage": "vitest run --coverage"
   },
   "dependencies": {
+    "@capacitor/android": "7",
+    "@capacitor/cli": "7",
+    "@capacitor/core": "7",
     "dexie": "4.4.3",
     "lucide-react": "1.17.0",
     "mathjs": "15.2.0",

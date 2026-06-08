@@ -29,6 +29,7 @@ const OCRScanner = lazy(() =>
 export interface AppOutletContext {
   openTransactionForm: (type?: TransactionType, editTx?: Transaction) => void;
   openCalculator: () => void;
+  openOCR: () => void;
 }
 
 const PAGES_WITHOUT_FAB = ["/onboarding", "/settings"];
@@ -69,6 +70,8 @@ export function AppShell() {
     },
     [],
   );
+
+  const openOCR = useCallback(() => setOcrOpen(true), []);
 
   const handleOCRConfirm = useCallback((data: OCRConfirmedData) => {
     setOcrOpen(false);
@@ -118,7 +121,7 @@ export function AppShell() {
     txSheet.open ||
     ocrOpen ||
     calcOpen;
-  const outletCtx: AppOutletContext = { openTransactionForm, openCalculator };
+  const outletCtx: AppOutletContext = { openTransactionForm, openCalculator, openOCR };
 
   return (
     <div className="flex flex-col min-h-[100dvh] bg-bg-page">

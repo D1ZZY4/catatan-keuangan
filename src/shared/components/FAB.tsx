@@ -121,8 +121,8 @@ export function FAB({ onAction }: FABProps) {
       )}
 
       <div
-        className="fixed right-6 z-50 flex flex-col items-center gap-3"
-        style={{ bottom: "calc(100px + env(safe-area-inset-bottom, 0px))" }}
+        className="fixed right-4 z-50 flex flex-col items-center gap-3"
+        style={{ bottom: "calc(96px + env(safe-area-inset-bottom, 0px))" }}
       >
         {DIAL_ITEMS.map((item, i) => {
           const delay = (DIAL_ITEMS.length - 1 - i) * 50;
