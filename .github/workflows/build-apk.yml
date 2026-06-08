@@ -39,17 +39,37 @@ jobs:
       - name: Install dependencies
         run: bun install
         env:
-          npm_config_fetch_timeout: 60000
+          npm_config_fetch_timeout: 120000
           npm_config_fetch_retry_mintimeout: 20000
-          npm_config_fetch_retry_maxtimeout: 120000
+          npm_config_fetch_retry_maxtimeout: 180000
+          npm_config_fetch_retries: 5
+          npm_config_fetch_retry_factor: 2
 
       - name: Retry install if failed
         if: failure()
-        run: bun install --force
+        run: |
+          echo "First attempt failed, waiting 15s before retry..."
+          sleep 15
+          bun install --force
         env:
-          npm_config_fetch_timeout: 60000
-          npm_config_fetch_retry_mintimeout: 20000
-          npm_config_fetch_retry_maxtimeout: 120000
+          npm_config_fetch_timeout: 180000
+          npm_config_fetch_retry_mintimeout: 30000
+          npm_config_fetch_retry_maxtimeout: 300000
+          npm_config_fetch_retries: 8
+          npm_config_fetch_retry_factor: 3
+
+      - name: Second retry install if still failed
+        if: failure()
+        run: |
+          echo "Second attempt failed, waiting 30s before final retry..."
+          sleep 30
+          bun install --force
+        env:
+          npm_config_fetch_timeout: 240000
+          npm_config_fetch_retry_mintimeout: 60000
+          npm_config_fetch_retry_maxtimeout: 600000
+          npm_config_fetch_retries: 10
+          npm_config_fetch_retry_factor: 4
 
       - name: Build PWA
         run: bun run build
