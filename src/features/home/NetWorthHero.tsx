@@ -171,7 +171,7 @@ export function NetWorthHero({
         </div>
 
         <p className="text-[10px] text-text-muted font-semibold mb-1 tracking-widest uppercase">
-          Total kekayaan bersih
+          Saldo Bersih
         </p>
         <p className="text-[40px] font-bold font-display text-text-primary tabular-nums leading-none tracking-tight mb-5">
           {visible ? formatCurrency(netWorth, "IDR") : "Rp ••••••"}

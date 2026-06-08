@@ -224,8 +224,8 @@ export function WalletPage() {
         }
       />
 
-      <div className="px-4 py-3 bg-gradient-to-b from-bg-card to-bg-page border-b border-bg-card">
-        <p className="text-xs text-text-muted">Total kekayaan bersih</p>
+      <div className="px-4 py-3 bg-bg-page">
+        <p className="text-xs text-text-muted font-semibold tracking-widest uppercase">Saldo Bersih</p>
         <p className="text-2xl font-bold font-display text-text-primary tabular-nums tracking-tight">
           {formatCurrency(netWorth, "IDR")}
         </p>

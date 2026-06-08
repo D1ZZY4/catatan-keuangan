@@ -14,6 +14,7 @@
     "@capacitor/cli": "7",
     "@capacitor/core": "7",
     "dexie": "4.4.3",
+    "iconsax-react": "^0.0.8",
     "lucide-react": "1.17.0",
     "mathjs": "15.2.0",
     "nanoid": "^5.0.7",

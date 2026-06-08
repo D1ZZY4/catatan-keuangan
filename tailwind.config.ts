@@ -44,6 +44,7 @@ export default {
       boxShadow: {
         card: "0 1px 3px rgba(26, 24, 20, 0.06), 0 4px 12px rgba(26, 24, 20, 0.04)",
         fab: "0 6px 16px rgba(140, 192, 235, 0.45)",
+        float: "0 8px 32px rgba(0, 0, 0, 0.12), 0 2px 8px rgba(0, 0, 0, 0.06)",
       },
       keyframes: {
         "sheet-in": {
