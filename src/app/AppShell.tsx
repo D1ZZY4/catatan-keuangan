@@ -3,6 +3,8 @@ import { Navigate, Outlet, useLocation } from "react-router-dom";
 import { useAuth } from "./AuthContext";
 import { useAppData } from "./AppDataContext";
 import { useCalculator } from "./CalculatorContext";
+import { useRecurringTransactions } from "@/shared/hooks/useRecurringTransactions";
+import { RecurringDueSheet } from "@/features/recurring/RecurringDueSheet";
 import { BottomNav } from "@/shared/components/BottomNav";
 import { SideNav } from "@/shared/components/SideNav";
 import { FAB, type FABAction } from "@/shared/components/FAB";
@@ -49,10 +51,15 @@ function LoadingFallback() {
 
 export function AppShell() {
   const { state } = useAuth();
-  const { budgets, transactions, categories, reminders } = useAppData();
+  const { budgets, transactions, categories, reminders, addTransaction } = useAppData();
   const location = useLocation();
   const notifyRanRef = useRef(false);
   const { isOpen: calcOpen, openCalculator, closeCalculator } = useCalculator();
+
+  const isUnlocked = state.status === "unlocked";
+  const { dueItems, sheetOpen: recurringSheetOpen, setSheetOpen: setRecurringSheetOpen,
+    confirmAll: confirmRecurring, dismissAll: dismissRecurring, skipItem: skipRecurring,
+  } = useRecurringTransactions(isUnlocked);
 
   const [txSheet, setTxSheet] = useState<{
     open: boolean;
@@ -191,6 +198,15 @@ export function AppShell() {
         </Suspense>
 
         <ToastContainer />
+
+        <RecurringDueSheet
+          isOpen={recurringSheetOpen}
+          onClose={() => setRecurringSheetOpen(false)}
+          items={dueItems}
+          onConfirmAll={() => confirmRecurring(addTransaction as Parameters<typeof confirmRecurring>[0])}
+          onSkipItem={skipRecurring}
+          onDismissAll={dismissRecurring}
+        />
       </div>
     </div>
   );

@@ -23,28 +23,13 @@
 - M20: SELESAI — OfflinePill, HealthScoreWidget, GuidedHomeTour (5 langkah, auto-advance), LocalInsights (StatsPage), useKeyboardShortcuts (N/E/I + Esc), data-tour attributes, HealthScoreWidget + GuidedHomeTour di HomePage
 - M21: SELESAI — CSV export (BackupPage, BOM, kompatibel Excel), share transaksi (navigator.share + clipboard fallback), tags input step 3 (max 5, chip UI, Enter/comma/Backspace), jadwal mode gelap otomatis (localStorage, interval 60s, UI jam mulai/selesai)
 
-## Semua Spec Gap Ditutup (Sesi Terakhir)
+## Spec Gap Audit — Session (Batch 2)
 
-- [x] Versi auto-inject dari package.json (VITE_APP_VERSION, VITE_BUILD_DATE)
-- [x] 3 dompet default di-seed saat completeOnboarding
-- [x] Welcome screen pasca-onboarding (confetti + wallet preview)
-- [x] SmartCacheService (adaptive TTL, eviksi, preload pattern)
-- [x] Tablet sidebar (SideNav md+, BottomNav md:hidden)
-- [x] CSS token lengkap sesuai spec
-- [x] Optimistic updates di AppDataContext (semua 15 mutasi)
-- [x] Swipe kiri → hapus / swipe kanan → duplikat di TransactionListItem
-- [x] MIT License modal di Settings
-- [x] Developer: Aby Abdillah di Tentang Aplikasi
-- [x] Wallet.sortOrder?: number — field ditambah ke type + seed data
-- [x] Drag-to-reorder WalletPage — useDragReorder hook + "Atur Urutan" toggle + pointer events
-- [x] TransactionForm auto-select kategori pertama saat type berubah di step 1
-- [x] Settings Tampilan: mata uang dasar, format tanggal, ukuran teks (useDisplaySettings hook)
-- [x] AppShell loads display settings on mount via loadDisplaySettings()
-- [x] WalletForm defaults to baseCurrency setting for new wallets
-- [x] StatsPage wallet filter chips (multi-select, chip dengan "Semua" + per-wallet)
-- [x] OverviewTab accepts walletIds prop for wallet-scoped stats
-- [x] Sparkline 7 hari (bukan 30) sesuai spec §8
-- [x] format.ts: formatDate mendukung id/us/iso format via module-level variable
+- [x] Gap 1: TransactionForm single-page scrollable (spec §9) — type chips, CurrencyInput auto-focus, "Simpan"
+- [x] Gap 2: Template Transaksi — Dexie version 2 `transaction_templates` table, chips di form header, save/apply/delete
+- [x] Gap 3: Batch operations di TransactionListItem + TransactionPage — long press → select mode, select all, batch delete, batch move category
+- [x] Gap 4: Import CSV Bank di BackupPage — parser BCA/Mandiri/BNI/BRI/generic, preview sheet dengan baris pilihan, wallet selector, konfirmasi
+- [x] Gap 5: Transaksi Berulang Otomatis — Dexie version 3 `recurring_transactions` table, `useRecurringTransactions` hook, `RecurringDueSheet` (konfirmasi saat jatuh tempo), `RecurringPage` CRUD (tambah/toggle aktif/hapus), rute `/settings/recurring`, link di SettingsPage
 
 ## Catatan
 - build-release/BUILD-INSTRUCTIONS.md tersedia sebagai pengganti APK

@@ -39,6 +39,9 @@ const BackupPage = lazy(() =>
 const BudgetPage = lazy(() =>
   import("@/features/budgets/BudgetPage").then((m) => ({ default: m.BudgetPage })),
 );
+const RecurringPage = lazy(() =>
+  import("@/features/recurring/RecurringPage").then((m) => ({ default: m.RecurringPage })),
+);
 
 function PageFallback() {
   return (
@@ -143,6 +146,14 @@ export const router = createBrowserRouter(
           element: (
             <W>
               <BackupPage />
+            </W>
+          ),
+        },
+        {
+          path: "settings/recurring",
+          element: (
+            <W>
+              <RecurringPage />
             </W>
           ),
         },

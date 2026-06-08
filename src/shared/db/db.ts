@@ -59,6 +59,32 @@ export interface NotificationSentRow {
   sentAt: number;
 }
 
+export interface TransactionTemplateRow {
+  id: string;
+  name: string;
+  type: string;
+  categoryId: string;
+  walletId: string;
+  amount: number;
+  note: string;
+  createdAt: number;
+}
+
+export interface RecurringTransactionRow {
+  id: string;
+  name: string;
+  type: string;
+  amount: number;
+  currency: string;
+  categoryId: string;
+  walletId: string;
+  note: string;
+  frequency: "harian" | "mingguan" | "bulanan";
+  nextDueDate: number;
+  isActive: 0 | 1;
+  createdAt: number;
+}
+
 class CatatKeuDB extends Dexie {
   wallets!: EntityTable<WalletEnvelope, "id">;
   transactions!: EntityTable<TransactionEnvelope, "id">;
@@ -69,6 +95,8 @@ class CatatKeuDB extends Dexie {
   settings!: EntityTable<SettingRow, "key">;
   auth!: EntityTable<AuthRow, "key">;
   notifications_sent!: EntityTable<NotificationSentRow, "id">;
+  transaction_templates!: EntityTable<TransactionTemplateRow, "id">;
+  recurring_transactions!: EntityTable<RecurringTransactionRow, "id">;
 
   constructor() {
     super("CatatKeuDB");
@@ -83,6 +111,33 @@ class CatatKeuDB extends Dexie {
       settings: "key",
       auth: "key",
       notifications_sent: "++id, key, sentAt",
+    });
+    this.version(2).stores({
+      wallets: "id, currency, isArchived, createdAt",
+      transactions:
+        "id, type, walletId, toWalletId, categoryId, date, createdAt, updatedAt",
+      categories: "id, type, isDefault",
+      budgets: "id, categoryId, period",
+      reminders: "id, period, isActive, dueDay",
+      price_cache: "key, fetchedAt",
+      settings: "key",
+      auth: "key",
+      notifications_sent: "++id, key, sentAt",
+      transaction_templates: "id, type, categoryId, createdAt",
+    });
+    this.version(3).stores({
+      wallets: "id, currency, isArchived, createdAt",
+      transactions:
+        "id, type, walletId, toWalletId, categoryId, date, createdAt, updatedAt",
+      categories: "id, type, isDefault",
+      budgets: "id, categoryId, period",
+      reminders: "id, period, isActive, dueDay",
+      price_cache: "key, fetchedAt",
+      settings: "key",
+      auth: "key",
+      notifications_sent: "++id, key, sentAt",
+      transaction_templates: "id, type, categoryId, createdAt",
+      recurring_transactions: "id, frequency, nextDueDate, isActive, createdAt",
     });
   }
 }

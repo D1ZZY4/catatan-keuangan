@@ -1,5 +1,5 @@
 import React, { useRef, useState } from "react";
-import { Copy, Trash2 } from "lucide-react";
+import { CheckCircle2, Circle, Copy, Trash2 } from "lucide-react";
 import type { Category, Transaction } from "@/shared/types";
 import { formatCurrency, formatDate } from "@/shared/utils/format";
 import { cn } from "@/shared/utils/misc";
@@ -30,6 +30,7 @@ function isNeutralType(type: string): boolean {
 const DELETE_ZONE_W = 72;
 const DUPE_ZONE_W = 64;
 const COMMIT_THRESHOLD = 50;
+const LONG_PRESS_DELAY = 500;
 
 interface TransactionListItemProps {
   transaction: Transaction;
@@ -37,6 +38,11 @@ interface TransactionListItemProps {
   onClick?: () => void;
   onDelete?: () => void;
   onDuplicate?: () => void;
+  onLongPress?: () => void;
+  /** batch-select mode */
+  selectMode?: boolean;
+  selected?: boolean;
+  onSelect?: (id: string) => void;
 }
 
 export function TransactionListItem({
@@ -45,6 +51,10 @@ export function TransactionListItem({
   onClick,
   onDelete,
   onDuplicate,
+  onLongPress,
+  selectMode = false,
+  selected = false,
+  onSelect,
 }: TransactionListItemProps) {
   const positive = isPositiveType(transaction.type);
   const neutral = isNeutralType(transaction.type);
@@ -62,7 +72,8 @@ export function TransactionListItem({
   const [swipeX, setSwipeX] = useState(0);
   const [dragging, setDragging] = useState(false);
   const dragRef = useRef({ startX: 0, lastX: 0, moved: false });
-  const swipeEnabled = onDelete !== undefined || onDuplicate !== undefined;
+  const longPressTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const swipeEnabled = !selectMode && (onDelete !== undefined || onDuplicate !== undefined);
 
   const clampSwipe = (delta: number) => {
     const minX = onDelete ? -DELETE_ZONE_W : 0;
@@ -71,8 +82,19 @@ export function TransactionListItem({
   };
 
   const handlePointerDown = (e: React.PointerEvent) => {
-    if (!swipeEnabled) return;
     dragRef.current = { startX: e.clientX, lastX: e.clientX, moved: false };
+    if (selectMode) return;
+    // Start long press timer
+    if (onLongPress) {
+      longPressTimer.current = setTimeout(() => {
+        if (!dragRef.current.moved) {
+          onLongPress();
+          // Vibrate if available
+          if (navigator.vibrate) navigator.vibrate(50);
+        }
+      }, LONG_PRESS_DELAY);
+    }
+    if (!swipeEnabled) return;
     setDragging(true);
     (e.currentTarget as HTMLElement).setPointerCapture(e.pointerId);
   };
@@ -81,23 +103,32 @@ export function TransactionListItem({
     if (!dragging) return;
     dragRef.current.lastX = e.clientX;
     const delta = e.clientX - dragRef.current.startX;
-    if (Math.abs(delta) > 6) dragRef.current.moved = true;
+    if (Math.abs(delta) > 6) {
+      dragRef.current.moved = true;
+      // Cancel long press if swipe detected
+      if (longPressTimer.current) {
+        clearTimeout(longPressTimer.current);
+        longPressTimer.current = null;
+      }
+    }
     setSwipeX(clampSwipe(delta));
   };
 
   const handlePointerUp = () => {
+    if (longPressTimer.current) {
+      clearTimeout(longPressTimer.current);
+      longPressTimer.current = null;
+    }
     if (!dragging) return;
     setDragging(false);
     const delta = dragRef.current.lastX - dragRef.current.startX;
 
     if (!dragRef.current.moved) {
-      // Tap — if already revealed, close; otherwise let onClick fire
       if (swipeX !== 0) setSwipeX(0);
       return;
     }
 
     if (delta <= -COMMIT_THRESHOLD && onDelete) {
-      // Snap to reveal delete zone
       setSwipeX(-DELETE_ZONE_W);
     } else if (delta >= COMMIT_THRESHOLD && onDuplicate) {
       onDuplicate();
@@ -108,6 +139,10 @@ export function TransactionListItem({
   };
 
   const handleClick = (e: React.MouseEvent) => {
+    if (selectMode) {
+      onSelect?.(transaction.id);
+      return;
+    }
     if (dragRef.current.moved) {
       e.preventDefault();
       e.stopPropagation();
@@ -121,6 +156,10 @@ export function TransactionListItem({
   };
 
   const handleKeyDown = (e: React.KeyboardEvent) => {
+    if (selectMode) {
+      if (e.key === "Enter" || e.key === " ") onSelect?.(transaction.id);
+      return;
+    }
     if (onClick && (e.key === "Enter" || e.key === " ")) onClick();
   };
 
@@ -128,7 +167,7 @@ export function TransactionListItem({
   return (
     <div className="relative overflow-hidden" style={{ isolation: "isolate" }}>
       {/* Left action zone (duplicate — swipe right) */}
-      {onDuplicate && (
+      {!selectMode && onDuplicate && (
         <div
           className="absolute inset-y-0 left-0 flex items-center justify-center bg-accent-primary"
           style={{ width: `${DUPE_ZONE_W}px` }}
@@ -142,7 +181,7 @@ export function TransactionListItem({
       )}
 
       {/* Right action zone (delete — swipe left) */}
-      {onDelete && (
+      {!selectMode && onDelete && (
         <div
           className="absolute inset-y-0 right-0 flex items-center justify-center bg-danger"
           style={{ width: `${DELETE_ZONE_W}px` }}
@@ -160,17 +199,25 @@ export function TransactionListItem({
 
       {/* Main content */}
       <div
-        role={onClick ? "button" : undefined}
-        tabIndex={onClick ? 0 : undefined}
+        role={onClick || selectMode ? "button" : undefined}
+        tabIndex={onClick || selectMode ? 0 : undefined}
         onClick={handleClick}
         onKeyDown={handleKeyDown}
-        onPointerDown={swipeEnabled ? handlePointerDown : undefined}
+        onPointerDown={handlePointerDown}
         onPointerMove={swipeEnabled ? handlePointerMove : undefined}
-        onPointerUp={swipeEnabled ? handlePointerUp : undefined}
-        onPointerCancel={swipeEnabled ? () => { setDragging(false); setSwipeX(0); } : undefined}
+        onPointerUp={handlePointerUp}
+        onPointerCancel={() => {
+          setDragging(false);
+          setSwipeX(0);
+          if (longPressTimer.current) {
+            clearTimeout(longPressTimer.current);
+            longPressTimer.current = null;
+          }
+        }}
         className={cn(
-          "relative flex items-center gap-3 px-4 py-3 bg-bg-page select-none",
-          onClick && "cursor-pointer active:bg-bg-card",
+          "relative flex items-center gap-3 px-4 py-3 bg-bg-page select-none transition-colors",
+          (onClick || selectMode) && "cursor-pointer active:bg-bg-card",
+          selectMode && selected && "bg-accent-primary/5",
         )}
         style={{
           transform: swipeX !== 0 ? `translateX(${swipeX}px)` : undefined,
@@ -179,6 +226,17 @@ export function TransactionListItem({
           willChange: dragging ? "transform" : undefined,
         }}
       >
+        {/* Checkbox in select mode */}
+        {selectMode && (
+          <div className="flex-shrink-0 w-5 h-5 text-accent-primary">
+            {selected ? (
+              <CheckCircle2 size={20} className="text-accent-primary" />
+            ) : (
+              <Circle size={20} className="text-text-muted/40" />
+            )}
+          </div>
+        )}
+
         <div
           className="w-10 h-10 rounded-full flex items-center justify-center flex-shrink-0"
           style={{ backgroundColor: category?.color ? `${category.color}22` : "var(--bg-card)" }}
@@ -200,7 +258,7 @@ export function TransactionListItem({
           </p>
           {transaction.tags !== undefined && transaction.tags.length > 0 && (
             <p className="text-xs text-text-muted truncate max-w-[80px]">
-              {transaction.tags[0]}
+              {transaction.tags[0] !== undefined ? `#${transaction.tags[0]}` : ""}
             </p>
           )}
         </div>

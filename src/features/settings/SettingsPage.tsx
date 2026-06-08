@@ -4,6 +4,7 @@ import {
   Bell,
   BookOpen,
   Calendar,
+  CalendarClock,
   Check,
   ChevronRight,
   CircleDollarSign,
@@ -337,6 +338,7 @@ export function SettingsPage() {
         <div className="mx-4 rounded-2xl overflow-hidden shadow-card bg-bg-surface divide-y divide-bg-page">
           <SettingRow icon={<Tag size={18} className="text-accent-primary" />} label="Kategori" description="Kelola kategori transaksi" href="/settings/categories" />
           <SettingRow icon={<Bell size={18} className="text-warning" />} label="Pengingat Tagihan" description="Atur notifikasi jatuh tempo" href="/settings/reminders" />
+          <SettingRow icon={<CalendarClock size={18} className="text-accent-warm" />} label="Transaksi Berulang" description="Cicilan, gaji, tagihan rutin otomatis" href="/settings/recurring" />
           <SettingRow icon={<Layers size={18} className="text-accent-secondary" />} label="Anggaran" description="Kelola anggaran per kategori" href="/budgets" />
         </div>
 
