@@ -35,10 +35,13 @@
 
 - [x] KRITIS: Bundle 6.52 MB main chunk → manualChunks di vite.config.ts + maximumFileSizeToCacheInBytes:5MB; main index sekarang 19.98 kB gzipped
 - [x] TX_TYPES filter chips (Semua/Pemasukan/Pengeluaran/Transfer) tidak dirender di TransactionPage header → ditambahkan sebagai Baris 2 chips; type filter dihapus dari FilterSheet (hanya Dompet)
-- [x] activeFilterCount menghitung txType (tidak sesuai spec) → sekarang hanya menghitung walletId
+- [x] activeFilterCount menghitung txType (tidak sesuai spec) → sekarang hanya menghitung walletId + tag
 - [x] Dark schedule hanya dicek saat SettingsPage terbuka → global interval 60s ditambahkan di AppShell.tsx
 - [x] AppShell loading skeleton pakai h-screen (bukan h-[100dvh]) → diperbaiki
 - [x] OfflinePill component tidak diintegrasikan → sekarang dipakai di WalletPage.tsx (mengganti inline WifiOff indicator)
+- [x] Dexie v4: tabel usage_patterns ditambahkan; SmartCacheService sekarang pakai db.usage_patterns bukan db.settings
+- [x] Tag filter di TransactionPage: FilterState.tag, filter logic (tx.tags?.includes), allTags useMemo, chip UI di filter sheet
+- [x] Default wallet seeding: Tunai/Bank/Tabungan sekarang menyertakan type/showInDashboard/includeInTotal
 
 ## Catatan
 - build-release/BUILD-INSTRUCTIONS.md tersedia sebagai pengganti APK

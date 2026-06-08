@@ -38,6 +38,9 @@ const DEFAULT_WALLETS: Array<Omit<Wallet, "id" | "createdAt">> = [
     initialBalance: 0,
     isArchived: false,
     sortOrder: 0,
+    type: "cash",
+    showInDashboard: true,
+    includeInTotal: true,
   },
   {
     name: "Bank",
@@ -47,6 +50,9 @@ const DEFAULT_WALLETS: Array<Omit<Wallet, "id" | "createdAt">> = [
     initialBalance: 0,
     isArchived: false,
     sortOrder: 1,
+    type: "bank",
+    showInDashboard: true,
+    includeInTotal: true,
   },
   {
     name: "Tabungan",
@@ -56,6 +62,9 @@ const DEFAULT_WALLETS: Array<Omit<Wallet, "id" | "createdAt">> = [
     initialBalance: 0,
     isArchived: false,
     sortOrder: 2,
+    type: "savings",
+    showInDashboard: true,
+    includeInTotal: true,
   },
 ];
 

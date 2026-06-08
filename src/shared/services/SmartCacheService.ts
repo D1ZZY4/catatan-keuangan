@@ -30,9 +30,9 @@ class SmartCacheService {
   private async loadPattern(): Promise<void> {
     if (this.patternLoaded) return;
     try {
-      const row = await db.settings.get(PATTERN_KEY);
+      const row = await db.usage_patterns.get(PATTERN_KEY);
       if (row?.value) {
-        this.pattern = JSON.parse(row.value as string) as UsagePattern;
+        this.pattern = JSON.parse(row.value) as UsagePattern;
       }
     } catch {
       // ignore — pattern is best-effort
@@ -43,7 +43,7 @@ class SmartCacheService {
 
   private async savePattern(): Promise<void> {
     try {
-      await db.settings.put({ key: PATTERN_KEY, value: JSON.stringify(this.pattern) });
+      await db.usage_patterns.put({ key: PATTERN_KEY, value: JSON.stringify(this.pattern) });
     } catch {
       // ignore
     }

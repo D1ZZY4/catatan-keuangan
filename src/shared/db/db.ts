@@ -85,6 +85,11 @@ export interface RecurringTransactionRow {
   createdAt: number;
 }
 
+export interface UsagePatternRow {
+  key: string;
+  value: string;
+}
+
 class CatatKeuDB extends Dexie {
   wallets!: EntityTable<WalletEnvelope, "id">;
   transactions!: EntityTable<TransactionEnvelope, "id">;
@@ -97,6 +102,7 @@ class CatatKeuDB extends Dexie {
   notifications_sent!: EntityTable<NotificationSentRow, "id">;
   transaction_templates!: EntityTable<TransactionTemplateRow, "id">;
   recurring_transactions!: EntityTable<RecurringTransactionRow, "id">;
+  usage_patterns!: EntityTable<UsagePatternRow, "key">;
 
   constructor() {
     super("CatatKeuDB");
@@ -138,6 +144,21 @@ class CatatKeuDB extends Dexie {
       notifications_sent: "++id, key, sentAt",
       transaction_templates: "id, type, categoryId, createdAt",
       recurring_transactions: "id, frequency, nextDueDate, isActive, createdAt",
+    });
+    this.version(4).stores({
+      wallets: "id, currency, isArchived, createdAt",
+      transactions:
+        "id, type, walletId, toWalletId, categoryId, date, createdAt, updatedAt",
+      categories: "id, type, isDefault",
+      budgets: "id, categoryId, period",
+      reminders: "id, period, isActive, dueDay",
+      price_cache: "key, fetchedAt",
+      settings: "key",
+      auth: "key",
+      notifications_sent: "++id, key, sentAt",
+      transaction_templates: "id, type, categoryId, createdAt",
+      recurring_transactions: "id, frequency, nextDueDate, isActive, createdAt",
+      usage_patterns: "key",
     });
   }
 }

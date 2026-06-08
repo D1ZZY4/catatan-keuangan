@@ -32,6 +32,7 @@ interface FilterState {
   txType: FilterType;
   walletId: string;
   search: string;
+  tag: string | null;
 }
 
 function matchesType(tx: Transaction, txType: FilterType): boolean {
@@ -52,6 +53,7 @@ export function TransactionPage() {
     txType: "all",
     walletId: "all",
     search: "",
+    tag: null,
   });
   const [filterOpen, setFilterOpen] = useState(false);
   const [selectedTx, setSelectedTx] = useState<Transaction | null>(null);
@@ -99,6 +101,7 @@ export function TransactionPage() {
         start.setHours(0, 0, 0, 0);
         if (tx.date < start.getTime()) return false;
       }
+      if (filter.tag !== null && !(tx.tags ?? []).includes(filter.tag)) return false;
       if (filter.search.trim()) {
         const q = filter.search.toLowerCase();
         const cat = categories.find((c) => c.id === tx.categoryId);
@@ -210,7 +213,16 @@ export function TransactionPage() {
     { id: "transfer", label: "Transfer" },
   ];
 
-  const activeFilterCount = filter.walletId !== "all" ? 1 : 0;
+  const allTags = useMemo(() => {
+    const set = new Set<string>();
+    for (const tx of transactions) {
+      for (const t of tx.tags ?? []) set.add(t);
+    }
+    return Array.from(set).sort();
+  }, [transactions]);
+
+  const activeFilterCount =
+    (filter.walletId !== "all" ? 1 : 0) + (filter.tag !== null ? 1 : 0);
 
   return (
     <>
@@ -476,8 +488,8 @@ export function TransactionPage() {
         </div>
       </BottomSheet>
 
-      {/* Filter sheet — hanya berisi pilihan Dompet sesuai spec §9 */}
-      <BottomSheet isOpen={filterOpen} onClose={() => setFilterOpen(false)} title="Filter Dompet">
+      {/* Filter sheet — Dompet + Tag */}
+      <BottomSheet isOpen={filterOpen} onClose={() => setFilterOpen(false)} title="Filter">
         <div className="p-4 space-y-5 pb-8">
           <div className="space-y-2">
             <p className="text-xs font-semibold text-text-muted uppercase tracking-wide">Dompet</p>
@@ -499,11 +511,35 @@ export function TransactionPage() {
             </div>
           </div>
 
+          {allTags.length > 0 && (
+            <div className="space-y-2">
+              <p className="text-xs font-semibold text-text-muted uppercase tracking-wide">Tag</p>
+              <div className="flex flex-wrap gap-2">
+                {allTags.map((tag) => (
+                  <button
+                    key={tag}
+                    onClick={() =>
+                      setFilter((f) => ({ ...f, tag: f.tag === tag ? null : tag }))
+                    }
+                    className={cn(
+                      "px-3 py-1.5 rounded-full text-sm font-medium transition-all",
+                      filter.tag === tag
+                        ? "bg-accent-primary text-white"
+                        : "bg-bg-card text-text-primary ring-1 ring-border",
+                    )}
+                  >
+                    #{tag}
+                  </button>
+                ))}
+              </div>
+            </div>
+          )}
+
           <div className="flex gap-2">
             {activeFilterCount > 0 && (
               <button
                 onClick={() => {
-                  setFilter((f) => ({ ...f, walletId: "all" }));
+                  setFilter((f) => ({ ...f, walletId: "all", tag: null }));
                   setFilterOpen(false);
                 }}
                 className="flex-1 py-3 bg-bg-card text-text-muted rounded-2xl text-sm font-semibold"

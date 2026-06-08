@@ -6,8 +6,24 @@ import type { LucideIcon } from "lucide-react";
 import type { Icon as IsaxIconType } from "iconsax-react";
 import { findBrandIcon } from "./BrandIcons";
 
-const lucideMap = LucideIcons as unknown as Record<string, LucideIcon | undefined>;
-const isaxMap = IsaxIcons as unknown as Record<string, IsaxIconType | undefined>;
+const allLucide = LucideIcons as Record<string, unknown>;
+const allIsax = IsaxIcons as Record<string, unknown>;
+
+function asLucideIcon(val: unknown): LucideIcon | undefined {
+  return typeof val === "function" ? (val as LucideIcon) : undefined;
+}
+
+function asIsaxIcon(val: unknown): IsaxIconType | undefined {
+  return typeof val === "function" ? (val as IsaxIconType) : undefined;
+}
+
+function lookupLucide(name: string): LucideIcon | undefined {
+  return asLucideIcon(allLucide[name]);
+}
+
+function lookupIsax(name: string): IsaxIconType | undefined {
+  return asIsaxIcon(allIsax[name]);
+}
 
 type IsaxVariant = "Linear" | "Outline" | "Broken" | "Bold" | "Bulk" | "TwoTone";
 
@@ -42,7 +58,7 @@ export function DynamicIcon({
 
       // Lucide-backed platform entry
       if (entry.iconType === "lucide") {
-        const LucideComp = lucideMap[entry.lucideName] ?? lucideMap["CircleHelp"];
+        const LucideComp = lookupLucide(entry.lucideName) ?? lookupLucide("CircleHelp");
         if (!LucideComp) return null;
         return (
           <LucideComp
@@ -69,7 +85,7 @@ export function DynamicIcon({
   // Iconsax icons — prefix: "isax:"
   if (name.startsWith("isax:")) {
     const isaxName = name.slice(5);
-    const IsaxIconComponent = isaxMap[isaxName];
+    const IsaxIconComponent = lookupIsax(isaxName);
     if (IsaxIconComponent !== undefined) {
       const isaxColor =
         color ??
@@ -87,7 +103,7 @@ export function DynamicIcon({
   }
 
   // Lucide icons (default — no prefix)
-  const LucideIconComponent = lucideMap[name] ?? lucideMap["CircleHelp"];
+  const LucideIconComponent = lookupLucide(name) ?? lookupLucide("CircleHelp");
   if (!LucideIconComponent) return null;
   return (
     <LucideIconComponent
@@ -102,7 +118,7 @@ export function DynamicIcon({
 
 export function getIconNames(): string[] {
   return Object.keys(LucideIcons).filter((k) => {
-    const val = (LucideIcons as unknown as Record<string, unknown>)[k];
+    const val = allLucide[k];
     return (
       typeof val === "function" &&
       k[0] !== undefined &&
@@ -114,7 +130,7 @@ export function getIconNames(): string[] {
 
 export function getIsaxIconNames(): string[] {
   return Object.keys(IsaxIcons).filter((k) => {
-    const val = (IsaxIcons as unknown as Record<string, unknown>)[k];
+    const val = allIsax[k];
     return typeof val === "function" && k[0] !== undefined && k[0] === k[0].toUpperCase();
   });
 }

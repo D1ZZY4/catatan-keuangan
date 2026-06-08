@@ -16,6 +16,16 @@ export type TransactionType =
   | "invest_buy"
   | "invest_sell";
 
+export type WalletType =
+  | "cash"
+  | "bank"
+  | "e-wallet"
+  | "investment"
+  | "savings"
+  | "credit"
+  | "crypto"
+  | "other";
+
 export interface Wallet {
   id: string;
   name: string;
@@ -26,6 +36,9 @@ export interface Wallet {
   isArchived: boolean;
   createdAt: number;
   sortOrder?: number;
+  type?: WalletType;
+  showInDashboard?: boolean;
+  includeInTotal?: boolean;
 }
 
 export interface Transaction {
