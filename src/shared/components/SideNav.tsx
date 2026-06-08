@@ -14,6 +14,7 @@ const NAV_ITEMS = [
 export function SideNav() {
   return (
     <nav
+      data-tour="sidenav"
       className="hidden md:flex flex-col w-64 min-h-[100dvh] flex-shrink-0 sticky top-0 border-r"
       style={{
         backgroundColor: "var(--bg-card)",

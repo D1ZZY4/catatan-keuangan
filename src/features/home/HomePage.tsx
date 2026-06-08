@@ -5,7 +5,6 @@ import { useAuth } from "@/app/AuthContext";
 import { useAppData, computeWalletBalance } from "@/app/AppDataContext";
 import { SkeletonCard } from "@/shared/components/SkeletonCard";
 import { TransactionListItem } from "@/shared/components/TransactionListItem";
-import { GuidedHomeTour } from "@/shared/components/GuidedHomeTour";
 import type { AppOutletContext } from "@/app/AppShell";
 import { NetWorthHero } from "./NetWorthHero";
 import { WalletCardWithSparkline } from "./WalletCardWithSparkline";
@@ -40,7 +39,6 @@ export function HomePage() {
 
   return (
     <>
-    <GuidedHomeTour />
     <main className="pb-6">
       <NetWorthHero
         userName={userName}
@@ -156,4 +154,5 @@ export function HomePage() {
     </main>
     </>
   );
+
 }

@@ -9,6 +9,7 @@ import { BottomNav } from "@/shared/components/BottomNav";
 import { SideNav } from "@/shared/components/SideNav";
 import { FAB, type FABAction } from "@/shared/components/FAB";
 import { ToastContainer } from "@/shared/components/Toast";
+import { GuidedHomeTour } from "@/shared/components/GuidedHomeTour";
 import { SkeletonCard } from "@/shared/components/SkeletonCard";
 import { notificationService } from "@/shared/services/NotificationService";
 import { loadDisplaySettings } from "@/shared/hooks/useDisplaySettings";
@@ -197,6 +198,7 @@ export function AppShell() {
           />
         </Suspense>
 
+        <GuidedHomeTour />
         <ToastContainer />
 
         <RecurringDueSheet

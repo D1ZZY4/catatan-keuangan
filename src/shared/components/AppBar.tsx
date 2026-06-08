@@ -14,6 +14,15 @@ interface AppBarProps {
   hideCalculator?: boolean;
 }
 
+const FROSTED_STYLE: React.CSSProperties = {
+  background: "rgba(var(--bg-card-rgb, 245,238,200), 0.88)",
+  backdropFilter: "blur(20px)",
+  WebkitBackdropFilter: "blur(20px)",
+  boxShadow: "0 8px 32px rgba(0,0,0,0.15), 0 2px 8px rgba(0,0,0,0.06)",
+  border: "1px solid rgba(255,255,255,0.38)",
+  borderRadius: "22px",
+};
+
 export function AppBar({
   title,
   showBack,
@@ -37,14 +46,11 @@ export function AppBar({
         "sticky top-0 z-30 px-4 pb-3 bg-transparent pointer-events-none",
         className,
       )}
-      style={{ paddingTop: "calc(env(safe-area-inset-top, 0px) + 60px)" }}
+      style={{ paddingTop: "calc(env(safe-area-inset-top, 0px) + 8px)" }}
     >
       <div
-        className={cn(
-          "flex items-center h-12 px-2 gap-1 pointer-events-auto",
-          !transparent &&
-            "rounded-[22px] bg-bg-card/90 backdrop-blur-xl border border-black/[0.05] dark:border-white/[0.07] shadow-float",
-        )}
+        className="flex items-center h-12 px-2 gap-1 pointer-events-auto"
+        style={transparent ? undefined : FROSTED_STYLE}
       >
         {showBack && (
           <button
