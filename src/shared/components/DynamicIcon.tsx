@@ -1,8 +1,10 @@
 import React from "react";
 import * as LucideIcons from "lucide-react";
 import * as IsaxIcons from "iconsax-react";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import type { LucideIcon } from "lucide-react";
 import type { Icon as IsaxIconType } from "iconsax-react";
+import { findBrandIcon } from "./BrandIcons";
 
 const lucideMap = LucideIcons as unknown as Record<string, LucideIcon | undefined>;
 const isaxMap = IsaxIcons as unknown as Record<string, IsaxIconType | undefined>;
@@ -28,6 +30,25 @@ export function DynamicIcon({
   strokeWidth,
   isaxVariant = "Linear",
 }: DynamicIconProps) {
+  const numSize = typeof size === "number" ? size : 20;
+
+  // FontAwesome brand icons — prefix: "fab:"
+  if (name.startsWith("fab:")) {
+    const key = name.slice(4);
+    const entry = findBrandIcon(key);
+    if (entry !== undefined) {
+      const faColor = color ?? (typeof style?.color === "string" ? style.color : undefined) ?? "currentColor";
+      return (
+        <FontAwesomeIcon
+          icon={entry.icon}
+          className={className}
+          style={{ width: numSize, height: numSize, color: faColor, flexShrink: 0, ...style }}
+        />
+      );
+    }
+  }
+
+  // Iconsax icons — prefix: "isax:"
   if (name.startsWith("isax:")) {
     const isaxName = name.slice(5);
     const IsaxIconComponent = isaxMap[isaxName];
@@ -47,6 +68,7 @@ export function DynamicIcon({
     }
   }
 
+  // Lucide icons (default — no prefix)
   const LucideIconComponent = lucideMap[name] ?? lucideMap["CircleHelp"];
   if (!LucideIconComponent) return null;
   return (
@@ -79,27 +101,3 @@ export function getIsaxIconNames(): string[] {
   });
 }
 
-export const CURATED_ISAX_ICONS = [
-  "Wallet", "Wallet1", "Wallet2", "Wallet3",
-  "EmptyWallet", "EmptyWalletAdd", "EmptyWalletChange", "EmptyWalletTick",
-  "Card", "CardAdd", "CardCoin", "CardEdit", "CardPos", "CardReceive", "CardSend", "CardTick",
-  "Coin", "Coin1", "DollarCircle", "DollarSquare",
-  "Bank", "MoneyRecive", "MoneySend", "MoneyAdd", "MoneyRemove", "Moneys",
-  "ReceiptItem", "ReceiptSquare", "Bill",
-  "Chart", "Chart1", "Chart2", "Graph", "TrendUp", "TrendDown",
-  "Bitcoin", "BitcoinCard",
-  "Bag", "Bag2", "BagHappy", "BagTick",
-  "ShoppingCart",
-  "Tag", "Gift",
-  "Airplane", "AirplaneSquare", "Bus", "Car", "TruckFast",
-  "Building", "Buildings", "Buildings2",
-  "Book", "Book1", "BookSaved", "BookSquare",
-  "Hospital", "Heart",
-  "Laptop", "Monitor", "Mobile", "Keyboard",
-  "MusicPlay", "Video", "Game", "Gameboy",
-  "Man", "Woman",
-  "Star1", "Award", "Crown", "Diamond",
-  "ArrowSwapHorizontal", "DirectSend",
-  "Setting2", "Refresh2", "Edit", "Edit2",
-  "HomeTrendUp", "HomeTrendDown",
-];

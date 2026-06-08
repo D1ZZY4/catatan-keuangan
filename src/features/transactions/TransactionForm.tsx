@@ -1,4 +1,4 @@
-import React, { useCallback, useMemo, useState } from "react";
+import React, { useCallback, useEffect, useMemo, useState } from "react";
 import {
   ArrowLeftRight,
   BarChart2,
@@ -8,6 +8,7 @@ import {
   Hash,
   PiggyBank,
   Send,
+  Sparkles,
   TrendingDown,
   TrendingUp,
   UserMinus,
@@ -21,6 +22,7 @@ import { CurrencyInput } from "@/shared/components/CurrencyInput";
 import { DatePicker } from "@/shared/components/DatePicker";
 import { DynamicIcon } from "@/shared/components/DynamicIcon";
 import { useAppData } from "@/app/AppDataContext";
+import { useAutoCategory } from "@/shared/hooks/useAutoCategory";
 import { useToast } from "@/shared/hooks/useToast";
 import { formatCurrency } from "@/shared/utils/format";
 import { cn } from "@/shared/utils/misc";
@@ -143,6 +145,17 @@ export function TransactionForm({
   });
   const [loading, setLoading] = useState(false);
   const [tagInput, setTagInput] = useState("");
+  const [categoryManuallySelected, setCategoryManuallySelected] = useState(!!editTransaction);
+
+  const isIncomeType = ["income", "debt_received", "savings_withdraw", "invest_sell"].includes(form.type);
+  const autoCategoryType = isIncomeType ? "income" : "expense";
+  const suggestedCategory = useAutoCategory(form.note, autoCategoryType, categories);
+
+  useEffect(() => {
+    if (suggestedCategory && !categoryManuallySelected && !form.categoryId) {
+      setForm((s) => ({ ...s, categoryId: suggestedCategory.id }));
+    }
+  }, [suggestedCategory, categoryManuallySelected, form.categoryId]);
 
   const update = useCallback(<K extends keyof FormState>(key: K, value: FormState[K]) => {
     setForm((s) => ({ ...s, [key]: value }));
@@ -320,12 +333,27 @@ export function TransactionForm({
 
           {!isTransfer && (
             <div className="space-y-1.5">
-              <label className="text-xs font-medium text-text-muted">Kategori</label>
+              <div className="flex items-center justify-between">
+                <label className="text-xs font-medium text-text-muted">Kategori</label>
+                {suggestedCategory !== undefined && !categoryManuallySelected && (
+                  <button
+                    onClick={() => {
+                      update("categoryId", suggestedCategory.id);
+                      setCategoryManuallySelected(true);
+                    }}
+                    className="flex items-center gap-1 text-[10px] font-semibold px-2 py-0.5 rounded-full bg-accent-primary/15 text-accent-primary"
+                    aria-label={`Saran kategori: ${suggestedCategory.name}`}
+                  >
+                    <Sparkles size={9} />
+                    Saran: {suggestedCategory.name}
+                  </button>
+                )}
+              </div>
               <div className="grid grid-cols-4 gap-2">
                 {visibleCategories.map((cat) => (
                   <button
                     key={cat.id}
-                    onClick={() => update("categoryId", cat.id)}
+                    onClick={() => { update("categoryId", cat.id); setCategoryManuallySelected(true); }}
                     className={cn(
                       "flex flex-col items-center gap-1 p-2 rounded-xl border text-xs transition-all",
                       form.categoryId === cat.id

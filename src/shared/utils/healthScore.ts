@@ -1,6 +1,7 @@
 import type { Transaction, Budget, Category } from "@/shared/types";
 
 export interface HealthScoreBreakdown {
+  hasData: boolean;
   score: number;
   savingsScore: number;
   budgetScore: number;
@@ -17,6 +18,17 @@ function clamp(val: number, min: number, max: number) {
   return Math.max(min, Math.min(max, val));
 }
 
+const EMPTY: HealthScoreBreakdown = {
+  hasData: false,
+  score: 0,
+  savingsScore: 0,
+  budgetScore: 0,
+  frequencyScore: 0,
+  diversityScore: 0,
+  savingsRate: 0,
+  label: "Perlu Perhatian",
+};
+
 export function computeHealthScore(
   transactions: Transaction[],
   budgets: Budget[],
@@ -25,6 +37,9 @@ export function computeHealthScore(
   const now = Date.now();
   const thirtyDaysAgo = now - 30 * 86400000;
   const recent = transactions.filter((tx) => tx.date >= thirtyDaysAgo);
+
+  // Not enough data to produce a meaningful score
+  if (recent.length === 0) return EMPTY;
 
   const income = recent
     .filter((tx) => INCOME_TYPES.includes(tx.type))
@@ -36,10 +51,10 @@ export function computeHealthScore(
   const savingsRate = income > 0 ? Math.max(0, (income - expense) / income) : 0;
   const savingsScore = clamp(Math.round((savingsRate / 0.2) * 30), 0, 30);
 
-  let budgetScore = 30;
+  // budgetScore: 0 when no budgets set (not a free 30 — encourage users to set budgets)
+  let budgetScore = 0;
   if (budgets.length > 0) {
-    const now2 = new Date();
-    const startOfMonth = new Date(now2.getFullYear(), now2.getMonth(), 1).getTime();
+    const startOfMonth = new Date(now).setDate(1);
     const compliant = budgets.filter((b) => {
       const spent = transactions
         .filter((tx) => tx.categoryId === b.categoryId && tx.date >= startOfMonth && EXPENSE_TYPES.includes(tx.type))
@@ -49,17 +64,20 @@ export function computeHealthScore(
     budgetScore = Math.round((compliant.length / budgets.length) * 30);
   }
 
-  const daysWithTx = new Set(
-    recent.map((tx) => new Date(tx.date).toDateString()),
-  ).size;
-  const weeksInPeriod = 4.3;
-  const avgPerWeek = daysWithTx / weeksInPeriod;
+  const daysWithTx = new Set(recent.map((tx) => new Date(tx.date).toDateString())).size;
+  const avgPerWeek = daysWithTx / 4.3;
   const frequencyScore = clamp(Math.round((avgPerWeek / 5) * 20), 0, 20);
 
   const uniqueCats = new Set(recent.map((tx) => tx.categoryId)).size;
   const diversityScore = clamp(Math.round((uniqueCats / 5) * 20), 0, 20);
 
-  const score = savingsScore + budgetScore + frequencyScore + diversityScore;
+  // When no budgets, scale up other components so max is still ~100
+  // savingsScore + frequencyScore + diversityScore = 70 max → scale to 100
+  const rawScore = budgets.length === 0
+    ? Math.round((savingsScore + frequencyScore + diversityScore) / 70 * 100)
+    : savingsScore + budgetScore + frequencyScore + diversityScore;
+
+  const score = clamp(rawScore, 0, 100);
 
   const label =
     score >= 80
@@ -71,6 +89,7 @@ export function computeHealthScore(
           : "Perlu Perhatian";
 
   return {
+    hasData: true,
     score,
     savingsScore,
     budgetScore,

@@ -1,0 +1,146 @@
+import {
+  faInstagram,
+  faFacebook,
+  faXTwitter,
+  faThreads,
+  faYoutube,
+  faTiktok,
+  faWhatsapp,
+  faTelegram,
+  faSnapchat,
+  faPinterest,
+  faLinkedin,
+  faReddit,
+  faDiscord,
+  faTwitch,
+  faMastodon,
+  faLine,
+  faSkype,
+  faSpotify,
+  faAmazon,
+  faAmazonPay,
+  faPaypal,
+  faStripe,
+  faCcStripe,
+  faApplePay,
+  faGooglePay,
+  faBitcoin,
+  faEthereum,
+  faCcVisa,
+  faCcMastercard,
+  faCcAmex,
+  faCcPaypal,
+  faCcAmazonPay,
+  faGoogle,
+  faGoogleDrive,
+  faGooglePlay,
+  faApple,
+  faAppStoreIos,
+  faMicrosoft,
+  faAndroid,
+  faWindows,
+  faChrome,
+  faFirefox,
+  faSafari,
+  faEdge,
+  faGithub,
+  faGitlab,
+  faShopify,
+  faWordpress,
+  faFigma,
+  faSlack,
+  faZoom,
+  faDropbox,
+  faTrello,
+  faJira,
+  faLinux,
+  faUbuntu,
+  faSteam,
+  faPlaystation,
+  faXbox,
+} from "@fortawesome/free-brands-svg-icons";
+import type { IconDefinition } from "@fortawesome/fontawesome-svg-core";
+
+export interface BrandIconEntry {
+  key: string;
+  label: string;
+  icon: IconDefinition;
+  category: string;
+}
+
+export const BRAND_ICONS: BrandIconEntry[] = [
+  // Media Sosial
+  { key: "instagram",  label: "Instagram",  icon: faInstagram,  category: "Sosial" },
+  { key: "facebook",   label: "Facebook",   icon: faFacebook,   category: "Sosial" },
+  { key: "x-twitter",  label: "X / Twitter", icon: faXTwitter,  category: "Sosial" },
+  { key: "threads",    label: "Threads",    icon: faThreads,    category: "Sosial" },
+  { key: "youtube",    label: "YouTube",    icon: faYoutube,    category: "Sosial" },
+  { key: "tiktok",     label: "TikTok",     icon: faTiktok,     category: "Sosial" },
+  { key: "whatsapp",   label: "WhatsApp",   icon: faWhatsapp,   category: "Sosial" },
+  { key: "telegram",   label: "Telegram",   icon: faTelegram,   category: "Sosial" },
+  { key: "line",       label: "LINE",       icon: faLine,       category: "Sosial" },
+  { key: "snapchat",   label: "Snapchat",   icon: faSnapchat,   category: "Sosial" },
+  { key: "pinterest",  label: "Pinterest",  icon: faPinterest,  category: "Sosial" },
+  { key: "linkedin",   label: "LinkedIn",   icon: faLinkedin,   category: "Sosial" },
+  { key: "reddit",     label: "Reddit",     icon: faReddit,     category: "Sosial" },
+  { key: "discord",    label: "Discord",    icon: faDiscord,    category: "Sosial" },
+  { key: "twitch",     label: "Twitch",     icon: faTwitch,     category: "Sosial" },
+  { key: "mastodon",   label: "Mastodon",   icon: faMastodon,   category: "Sosial" },
+  { key: "skype",      label: "Skype",      icon: faSkype,      category: "Sosial" },
+
+  // Streaming & Hiburan
+  { key: "spotify",    label: "Spotify",    icon: faSpotify,    category: "Streaming" },
+  { key: "amazon",     label: "Amazon",     icon: faAmazon,     category: "Streaming" },
+
+  // Keuangan & Pembayaran
+  { key: "paypal",        label: "PayPal",        icon: faPaypal,       category: "Keuangan" },
+  { key: "stripe",        label: "Stripe",        icon: faStripe,       category: "Keuangan" },
+  { key: "cc-stripe",     label: "Stripe (CC)",   icon: faCcStripe,     category: "Keuangan" },
+  { key: "apple-pay",     label: "Apple Pay",     icon: faApplePay,     category: "Keuangan" },
+  { key: "google-pay",    label: "Google Pay",    icon: faGooglePay,    category: "Keuangan" },
+  { key: "amazon-pay",    label: "Amazon Pay",    icon: faAmazonPay,    category: "Keuangan" },
+  { key: "cc-amazon-pay", label: "Amazon Pay CC", icon: faCcAmazonPay,  category: "Keuangan" },
+  { key: "bitcoin",       label: "Bitcoin",       icon: faBitcoin,      category: "Keuangan" },
+  { key: "ethereum",      label: "Ethereum",      icon: faEthereum,     category: "Keuangan" },
+  { key: "cc-visa",       label: "Visa",          icon: faCcVisa,       category: "Keuangan" },
+  { key: "cc-mastercard", label: "Mastercard",    icon: faCcMastercard, category: "Keuangan" },
+  { key: "cc-amex",       label: "Amex",          icon: faCcAmex,       category: "Keuangan" },
+  { key: "cc-paypal",     label: "PayPal (CC)",   icon: faCcPaypal,     category: "Keuangan" },
+
+  // Teknologi & Platform
+  { key: "google",        label: "Google",        icon: faGoogle,       category: "Teknologi" },
+  { key: "google-drive",  label: "Google Drive",  icon: faGoogleDrive,  category: "Teknologi" },
+  { key: "google-play",   label: "Google Play",   icon: faGooglePlay,   category: "Teknologi" },
+  { key: "apple",         label: "Apple",         icon: faApple,        category: "Teknologi" },
+  { key: "app-store",     label: "App Store",     icon: faAppStoreIos,  category: "Teknologi" },
+  { key: "microsoft",     label: "Microsoft",     icon: faMicrosoft,    category: "Teknologi" },
+  { key: "android",       label: "Android",       icon: faAndroid,      category: "Teknologi" },
+  { key: "windows",       label: "Windows",       icon: faWindows,      category: "Teknologi" },
+  { key: "chrome",        label: "Chrome",        icon: faChrome,       category: "Teknologi" },
+  { key: "firefox",       label: "Firefox",       icon: faFirefox,      category: "Teknologi" },
+  { key: "safari",        label: "Safari",        icon: faSafari,       category: "Teknologi" },
+  { key: "edge",          label: "Edge",          icon: faEdge,         category: "Teknologi" },
+  { key: "github",        label: "GitHub",        icon: faGithub,       category: "Teknologi" },
+  { key: "gitlab",        label: "GitLab",        icon: faGitlab,       category: "Teknologi" },
+  { key: "shopify",       label: "Shopify",       icon: faShopify,      category: "Teknologi" },
+  { key: "wordpress",     label: "WordPress",     icon: faWordpress,    category: "Teknologi" },
+  { key: "figma",         label: "Figma",         icon: faFigma,        category: "Teknologi" },
+  { key: "slack",         label: "Slack",         icon: faSlack,        category: "Teknologi" },
+  { key: "zoom",          label: "Zoom",          icon: faZoom,         category: "Teknologi" },
+  { key: "dropbox",       label: "Dropbox",       icon: faDropbox,      category: "Teknologi" },
+  { key: "trello",        label: "Trello",        icon: faTrello,       category: "Teknologi" },
+  { key: "jira",          label: "Jira",          icon: faJira,         category: "Teknologi" },
+  { key: "linux",         label: "Linux",         icon: faLinux,        category: "Teknologi" },
+  { key: "ubuntu",        label: "Ubuntu",        icon: faUbuntu,       category: "Teknologi" },
+
+  // Game
+  { key: "steam",       label: "Steam",       icon: faSteam,       category: "Game" },
+  { key: "playstation", label: "PlayStation", icon: faPlaystation, category: "Game" },
+  { key: "xbox",        label: "Xbox",        icon: faXbox,        category: "Game" },
+];
+
+export const BRAND_CATEGORIES = Array.from(new Set(BRAND_ICONS.map((b) => b.category)));
+
+export function findBrandIcon(key: string): BrandIconEntry | undefined {
+  return BRAND_ICONS.find((b) => b.key === key);
+}

@@ -1,5 +1,5 @@
 import React, { useMemo, useState } from "react";
-import { Activity, ChevronDown, ChevronUp } from "lucide-react";
+import { Activity, ChevronDown, ChevronUp, PenLine } from "lucide-react";
 import { useAppData } from "@/app/AppDataContext";
 import { computeHealthScore } from "@/shared/utils/healthScore";
 import { cn } from "@/shared/utils/misc";
@@ -34,6 +34,26 @@ export function HealthScoreWidget() {
     [transactions, budgets, categories],
   );
 
+  // No transactions yet — show a gentle prompt, NOT a misleading score
+  if (!health.hasData) {
+    return (
+      <section className="px-4">
+        <div className="flex items-center gap-3 bg-bg-card rounded-2xl px-4 py-3.5 shadow-card">
+          <div className="w-10 h-10 rounded-xl bg-accent-primary/10 flex items-center justify-center flex-shrink-0">
+            <Activity size={18} className="text-accent-primary" />
+          </div>
+          <div className="flex-1">
+            <p className="text-xs font-semibold text-text-muted">Skor Kesehatan Keuangan</p>
+            <p className="text-xs text-text-muted mt-0.5 leading-relaxed">
+              Catat transaksi pertama Anda untuk mulai memantau skor kesehatan keuangan.
+            </p>
+          </div>
+          <PenLine size={15} className="text-text-muted flex-shrink-0" />
+        </div>
+      </section>
+    );
+  }
+
   const color = SCORE_COLOR[health.label] ?? "text-text-muted";
   const bg = SCORE_BG[health.label] ?? "bg-bg-card";
   const bar = SCORE_BAR[health.label] ?? "bg-accent-primary";
@@ -41,8 +61,8 @@ export function HealthScoreWidget() {
   const breakdown = [
     { label: "Tabungan", value: health.savingsScore, max: 30 },
     { label: "Anggaran", value: health.budgetScore, max: 30 },
-    { label: "Frekuensi", value: health.frequencyScore, max: 20 },
-    { label: "Keragaman", value: health.diversityScore, max: 20 },
+    { label: "Frekuensi Catat", value: health.frequencyScore, max: 20 },
+    { label: "Keragaman Kategori", value: health.diversityScore, max: 20 },
   ];
 
   return (
@@ -101,7 +121,13 @@ export function HealthScoreWidget() {
             </div>
           ))}
           <p className="text-text-muted pt-1 leading-relaxed">
-            Skor dihitung dari tingkat tabungan, kepatuhan anggaran, frekuensi pencatatan, dan keragaman kategori dalam 30 hari terakhir.
+            Skor dihitung dari tingkat tabungan, kepatuhan anggaran, frekuensi pencatatan, dan
+            keragaman kategori dalam 30 hari terakhir.
+            {budgets.length === 0 && (
+              <span className="block mt-1 text-warning">
+                Buat anggaran untuk mendapatkan skor lebih akurat.
+              </span>
+            )}
           </p>
         </div>
       )}
