@@ -32,6 +32,12 @@
 - [x] --bg-surface tidak lagi putih murni (#EDE8B8)
 - [x] ReminderEmptyIllustration + aria-label pada icon buttons
 - [x] WelcomeScreen warna wallet pakai CSS vars (theme-aware)
+- [x] Optimistic updates di AppDataContext — semua 15 mutasi (5 entitas × add/update/remove) instan + rollback on error
+- [x] Swipe kiri → hapus (reveal zone merah) + swipe kanan → duplikat di TransactionListItem
+- [x] MIT License modal di Settings (klik "Lisensi")
+- [x] Hapus baris "Kredit" di Settings (spec §22 melarang)
+- [x] Developer: Aby Abdillah ditampilkan di Tentang Aplikasi
+- [x] Toggle knob bg-white → bg-bg-page (tidak ada #FFFFFF di UI)
 
 ## Catatan
 - build-release/BUILD-INSTRUCTIONS.md tersedia sebagai pengganti APK

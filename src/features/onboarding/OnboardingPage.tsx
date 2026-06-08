@@ -264,7 +264,7 @@ function SetupSlide({ onComplete, onShowBiometric, showingBiometric }: SetupSlid
           >
             <div
               className={cn(
-                "absolute top-0.5 w-5 h-5 rounded-full bg-white shadow transition-transform",
+                "absolute top-0.5 w-5 h-5 rounded-full bg-bg-page shadow transition-transform",
                 usePIN ? "translate-x-5" : "translate-x-0.5",
               )}
             />

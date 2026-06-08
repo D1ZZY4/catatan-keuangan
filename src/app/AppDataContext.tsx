@@ -4,6 +4,7 @@ import React, {
   useContext,
   useEffect,
   useReducer,
+  useRef,
 } from "react";
 import type { Budget, Category, Reminder, Transaction, Wallet } from "@/shared/types";
 import {
@@ -135,6 +136,10 @@ export function AppDataProvider({ children }: { children: React.ReactNode }) {
   const { state: authState } = useAuth();
   const [data, dispatch] = useReducer(dataReducer, initialState);
 
+  // Always-fresh reference to avoid stale closures in optimistic callbacks
+  const dataRef = useRef(data);
+  dataRef.current = data;
+
   const cryptoKey =
     authState.status === "unlocked" ? authState.cryptoKey : null;
 
@@ -167,15 +172,19 @@ export function AppDataProvider({ children }: { children: React.ReactNode }) {
     if (cryptoKey) await load(cryptoKey);
   }, [cryptoKey, load]);
 
-  // ---- Wallets
+  // ---- Wallets — optimistic ------------------------------------------------
 
   const addWallet = useCallback(
-    async (data: Omit<Wallet, "id" | "createdAt">) => {
+    async (walletData: Omit<Wallet, "id" | "createdAt">) => {
       if (!cryptoKey) return;
-      const wallet: Wallet = { ...data, id: newId(), createdAt: Date.now() };
-      await putWallet(cryptoKey, wallet);
-      const wallets = await listWallets(cryptoKey);
-      dispatch({ type: "SET_WALLETS", wallets });
+      const wallet: Wallet = { ...walletData, id: newId(), createdAt: Date.now() };
+      const prev = dataRef.current.wallets;
+      dispatch({ type: "SET_WALLETS", wallets: [...prev, wallet] });
+      try {
+        await putWallet(cryptoKey, wallet);
+      } catch {
+        dispatch({ type: "SET_WALLETS", wallets: prev });
+      }
     },
     [cryptoKey],
   );
@@ -183,32 +192,44 @@ export function AppDataProvider({ children }: { children: React.ReactNode }) {
   const updateWallet = useCallback(
     async (wallet: Wallet) => {
       if (!cryptoKey) return;
-      await putWallet(cryptoKey, wallet);
-      const wallets = await listWallets(cryptoKey);
-      dispatch({ type: "SET_WALLETS", wallets });
+      const prev = dataRef.current.wallets;
+      dispatch({ type: "SET_WALLETS", wallets: prev.map((w) => (w.id === wallet.id ? wallet : w)) });
+      try {
+        await putWallet(cryptoKey, wallet);
+      } catch {
+        dispatch({ type: "SET_WALLETS", wallets: prev });
+      }
     },
     [cryptoKey],
   );
 
   const removeWallet = useCallback(
     async (id: string) => {
-      await deleteWallet(id);
-      const wallets = cryptoKey ? await listWallets(cryptoKey) : [];
-      dispatch({ type: "SET_WALLETS", wallets });
+      const prev = dataRef.current.wallets;
+      dispatch({ type: "SET_WALLETS", wallets: prev.filter((w) => w.id !== id) });
+      try {
+        await deleteWallet(id);
+      } catch {
+        dispatch({ type: "SET_WALLETS", wallets: prev });
+      }
     },
-    [cryptoKey],
+    [],
   );
 
-  // ---- Transactions
+  // ---- Transactions — optimistic -------------------------------------------
 
   const addTransaction = useCallback(
     async (txData: Omit<Transaction, "id" | "createdAt" | "updatedAt">) => {
       if (!cryptoKey) return;
       const now = Date.now();
       const tx: Transaction = { ...txData, id: newId(), createdAt: now, updatedAt: now };
-      await putTransaction(cryptoKey, tx);
-      const transactions = await listTransactions(cryptoKey);
-      dispatch({ type: "SET_TRANSACTIONS", transactions });
+      const prev = dataRef.current.transactions;
+      dispatch({ type: "SET_TRANSACTIONS", transactions: [...prev, tx] });
+      try {
+        await putTransaction(cryptoKey, tx);
+      } catch {
+        dispatch({ type: "SET_TRANSACTIONS", transactions: prev });
+      }
     },
     [cryptoKey],
   );
@@ -217,31 +238,43 @@ export function AppDataProvider({ children }: { children: React.ReactNode }) {
     async (tx: Transaction) => {
       if (!cryptoKey) return;
       const updated: Transaction = { ...tx, updatedAt: Date.now() };
-      await putTransaction(cryptoKey, updated);
-      const transactions = await listTransactions(cryptoKey);
-      dispatch({ type: "SET_TRANSACTIONS", transactions });
+      const prev = dataRef.current.transactions;
+      dispatch({ type: "SET_TRANSACTIONS", transactions: prev.map((t) => (t.id === updated.id ? updated : t)) });
+      try {
+        await putTransaction(cryptoKey, updated);
+      } catch {
+        dispatch({ type: "SET_TRANSACTIONS", transactions: prev });
+      }
     },
     [cryptoKey],
   );
 
   const removeTransaction = useCallback(
     async (id: string) => {
-      await deleteTransaction(id);
-      const transactions = cryptoKey ? await listTransactions(cryptoKey) : [];
-      dispatch({ type: "SET_TRANSACTIONS", transactions });
+      const prev = dataRef.current.transactions;
+      dispatch({ type: "SET_TRANSACTIONS", transactions: prev.filter((t) => t.id !== id) });
+      try {
+        await deleteTransaction(id);
+      } catch {
+        dispatch({ type: "SET_TRANSACTIONS", transactions: prev });
+      }
     },
-    [cryptoKey],
+    [],
   );
 
-  // ---- Categories
+  // ---- Categories — optimistic ---------------------------------------------
 
   const addCategory = useCallback(
     async (catData: Omit<Category, "id" | "createdAt" | "isDefault">) => {
       if (!cryptoKey) return;
       const cat: Category = { ...catData, id: newId(), createdAt: Date.now(), isDefault: false };
-      await putCategory(cryptoKey, cat);
-      const categories = await listCategories(cryptoKey);
-      dispatch({ type: "SET_CATEGORIES", categories });
+      const prev = dataRef.current.categories;
+      dispatch({ type: "SET_CATEGORIES", categories: [...prev, cat] });
+      try {
+        await putCategory(cryptoKey, cat);
+      } catch {
+        dispatch({ type: "SET_CATEGORIES", categories: prev });
+      }
     },
     [cryptoKey],
   );
@@ -249,31 +282,43 @@ export function AppDataProvider({ children }: { children: React.ReactNode }) {
   const updateCategory = useCallback(
     async (cat: Category) => {
       if (!cryptoKey) return;
-      await putCategory(cryptoKey, cat);
-      const categories = await listCategories(cryptoKey);
-      dispatch({ type: "SET_CATEGORIES", categories });
+      const prev = dataRef.current.categories;
+      dispatch({ type: "SET_CATEGORIES", categories: prev.map((c) => (c.id === cat.id ? cat : c)) });
+      try {
+        await putCategory(cryptoKey, cat);
+      } catch {
+        dispatch({ type: "SET_CATEGORIES", categories: prev });
+      }
     },
     [cryptoKey],
   );
 
   const removeCategory = useCallback(
     async (id: string) => {
-      await deleteCategory(id);
-      const categories = cryptoKey ? await listCategories(cryptoKey) : [];
-      dispatch({ type: "SET_CATEGORIES", categories });
+      const prev = dataRef.current.categories;
+      dispatch({ type: "SET_CATEGORIES", categories: prev.filter((c) => c.id !== id) });
+      try {
+        await deleteCategory(id);
+      } catch {
+        dispatch({ type: "SET_CATEGORIES", categories: prev });
+      }
     },
-    [cryptoKey],
+    [],
   );
 
-  // ---- Budgets
+  // ---- Budgets — optimistic ------------------------------------------------
 
   const addBudget = useCallback(
     async (budgetData: Omit<Budget, "id" | "createdAt">) => {
       if (!cryptoKey) return;
       const budget: Budget = { ...budgetData, id: newId(), createdAt: Date.now() };
-      await putBudget(cryptoKey, budget);
-      const budgets = await listBudgets(cryptoKey);
-      dispatch({ type: "SET_BUDGETS", budgets });
+      const prev = dataRef.current.budgets;
+      dispatch({ type: "SET_BUDGETS", budgets: [...prev, budget] });
+      try {
+        await putBudget(cryptoKey, budget);
+      } catch {
+        dispatch({ type: "SET_BUDGETS", budgets: prev });
+      }
     },
     [cryptoKey],
   );
@@ -281,31 +326,43 @@ export function AppDataProvider({ children }: { children: React.ReactNode }) {
   const updateBudget = useCallback(
     async (budget: Budget) => {
       if (!cryptoKey) return;
-      await putBudget(cryptoKey, budget);
-      const budgets = await listBudgets(cryptoKey);
-      dispatch({ type: "SET_BUDGETS", budgets });
+      const prev = dataRef.current.budgets;
+      dispatch({ type: "SET_BUDGETS", budgets: prev.map((b) => (b.id === budget.id ? budget : b)) });
+      try {
+        await putBudget(cryptoKey, budget);
+      } catch {
+        dispatch({ type: "SET_BUDGETS", budgets: prev });
+      }
     },
     [cryptoKey],
   );
 
   const removeBudget = useCallback(
     async (id: string) => {
-      await deleteBudget(id);
-      const budgets = cryptoKey ? await listBudgets(cryptoKey) : [];
-      dispatch({ type: "SET_BUDGETS", budgets });
+      const prev = dataRef.current.budgets;
+      dispatch({ type: "SET_BUDGETS", budgets: prev.filter((b) => b.id !== id) });
+      try {
+        await deleteBudget(id);
+      } catch {
+        dispatch({ type: "SET_BUDGETS", budgets: prev });
+      }
     },
-    [cryptoKey],
+    [],
   );
 
-  // ---- Reminders
+  // ---- Reminders — optimistic ----------------------------------------------
 
   const addReminder = useCallback(
     async (reminderData: Omit<Reminder, "id" | "createdAt">) => {
       if (!cryptoKey) return;
       const reminder: Reminder = { ...reminderData, id: newId(), createdAt: Date.now() };
-      await putReminder(cryptoKey, reminder);
-      const reminders = await listReminders(cryptoKey);
-      dispatch({ type: "SET_REMINDERS", reminders });
+      const prev = dataRef.current.reminders;
+      dispatch({ type: "SET_REMINDERS", reminders: [...prev, reminder] });
+      try {
+        await putReminder(cryptoKey, reminder);
+      } catch {
+        dispatch({ type: "SET_REMINDERS", reminders: prev });
+      }
     },
     [cryptoKey],
   );
@@ -313,20 +370,28 @@ export function AppDataProvider({ children }: { children: React.ReactNode }) {
   const updateReminder = useCallback(
     async (reminder: Reminder) => {
       if (!cryptoKey) return;
-      await putReminder(cryptoKey, reminder);
-      const reminders = await listReminders(cryptoKey);
-      dispatch({ type: "SET_REMINDERS", reminders });
+      const prev = dataRef.current.reminders;
+      dispatch({ type: "SET_REMINDERS", reminders: prev.map((r) => (r.id === reminder.id ? reminder : r)) });
+      try {
+        await putReminder(cryptoKey, reminder);
+      } catch {
+        dispatch({ type: "SET_REMINDERS", reminders: prev });
+      }
     },
     [cryptoKey],
   );
 
   const removeReminder = useCallback(
     async (id: string) => {
-      await deleteReminder(id);
-      const reminders = cryptoKey ? await listReminders(cryptoKey) : [];
-      dispatch({ type: "SET_REMINDERS", reminders });
+      const prev = dataRef.current.reminders;
+      dispatch({ type: "SET_REMINDERS", reminders: prev.filter((r) => r.id !== id) });
+      try {
+        await deleteReminder(id);
+      } catch {
+        dispatch({ type: "SET_REMINDERS", reminders: prev });
+      }
     },
-    [cryptoKey],
+    [],
   );
 
   // ---- Derived helpers

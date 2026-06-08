@@ -35,7 +35,7 @@ function matchesType(tx: Transaction, txType: FilterType): boolean {
 }
 
 export function TransactionPage() {
-  const { transactions, categories, wallets, removeTransaction } = useAppData();
+  const { transactions, categories, wallets, removeTransaction, addTransaction } = useAppData();
   const { showToast } = useToast();
   const { openTransactionForm } = useOutletContext<AppOutletContext>();
 
@@ -106,6 +106,17 @@ export function TransactionPage() {
     await removeTransaction(selectedTx.id);
     showToast("Transaksi dihapus", "success");
     setSelectedTx(null);
+  };
+
+  const handleSwipeDelete = async (tx: Transaction) => {
+    await removeTransaction(tx.id);
+    showToast("Transaksi dihapus", "success");
+  };
+
+  const handleDuplicate = async (tx: Transaction) => {
+    const { id: _id, createdAt: _c, updatedAt: _u, ...rest } = tx;
+    await addTransaction({ ...rest, date: Date.now() });
+    showToast("Transaksi diduplikasi", "success");
   };
 
   const PERIODS: { id: FilterPeriod; label: string }[] = [
@@ -214,6 +225,8 @@ export function TransactionPage() {
                       transaction={tx}
                       {...(cat !== undefined ? { category: cat } : {})}
                       onClick={() => setSelectedTx(tx)}
+                      onDelete={() => void handleSwipeDelete(tx)}
+                      onDuplicate={() => void handleDuplicate(tx)}
                     />
                   );
                 })}

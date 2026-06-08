@@ -7,7 +7,6 @@ import {
   Check,
   ChevronRight,
   Fingerprint,
-  Info,
   Layers,
   Lock,
   Moon,
@@ -90,7 +89,7 @@ function Toggle({ value }: { value: boolean }) {
     >
       <div
         className={cn(
-          "absolute top-0.5 w-5 h-5 rounded-full bg-white shadow transition-transform",
+          "absolute top-0.5 w-5 h-5 rounded-full bg-bg-page shadow transition-transform",
           value ? "translate-x-4" : "translate-x-0.5",
         )}
       />
@@ -340,6 +339,7 @@ export function SettingsPage() {
   const [autoLockOpen, setAutoLockOpen] = useState(false);
   const [deleteOpen, setDeleteOpen] = useState(false);
   const [editNameOpen, setEditNameOpen] = useState(false);
+  const [licenseOpen, setLicenseOpen] = useState(false);
   const [notificationsEnabled, setNotificationsEnabled] = useState(() =>
     "Notification" in window && Notification.permission === "granted",
   );
@@ -602,29 +602,18 @@ export function SettingsPage() {
         {/* Tentang */}
         <SectionHeader title="Tentang Aplikasi" />
         <div className="mx-4 rounded-2xl overflow-hidden shadow-card bg-bg-surface divide-y divide-bg-page">
-          <div className="px-4 py-4 flex items-center gap-3">
-            <div className="w-9 h-9 rounded-xl bg-accent-primary/15 flex items-center justify-center flex-shrink-0">
-              <BookOpen size={18} className="text-accent-primary" />
-            </div>
-            <div className="flex-1">
-              <p className="text-sm font-semibold text-text-primary">Lisensi</p>
-              <p className="text-xs text-text-muted mt-0.5">MIT License. Kode sumber terbuka.</p>
-            </div>
-          </div>
-          <div className="px-4 py-4 flex items-center gap-3">
-            <div className="w-9 h-9 rounded-xl bg-accent-primary/15 flex items-center justify-center flex-shrink-0">
-              <Info size={18} className="text-accent-primary" />
-            </div>
-            <div className="flex-1">
-              <p className="text-sm font-semibold text-text-primary">Kredit</p>
-              <p className="text-xs text-text-muted mt-0.5">Dibangun dengan React, Dexie.js, Tailwind CSS, Recharts, dan Tesseract.js.</p>
-            </div>
-          </div>
+          <SettingRow
+            icon={<BookOpen size={18} className="text-accent-primary" />}
+            label="Lisensi"
+            description="MIT License — ketuk untuk lihat teks lengkap"
+            onClick={() => setLicenseOpen(true)}
+          />
         </div>
 
         <div className="px-4 pt-8 pb-4 text-center text-xs text-text-muted space-y-1">
           <p className="font-bold text-text-primary">Catatan Keuangan</p>
           <p>Versi {import.meta.env.VITE_APP_VERSION} ({import.meta.env.VITE_BUILD_DATE})</p>
+          <p className="text-text-primary font-medium">Developer: Aby Abdillah</p>
           <p>Data sepenuhnya tersimpan di perangkat Anda. Tidak ada server.</p>
         </div>
       </div>
@@ -688,6 +677,23 @@ export function SettingsPage() {
 
       {/* Hapus Semua Data */}
       <DeleteAllSheet isOpen={deleteOpen} onClose={() => setDeleteOpen(false)} />
+
+      {/* MIT License */}
+      <BottomSheet isOpen={licenseOpen} onClose={() => setLicenseOpen(false)} title="MIT License">
+        <div className="px-5 pb-8 pt-2 overflow-y-auto max-h-[60vh]">
+          <p className="text-xs text-text-muted leading-relaxed whitespace-pre-wrap font-mono bg-bg-card rounded-2xl p-4">
+{`MIT License
+
+Copyright (c) 2024 Aby Abdillah
+
+Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the "Software"), to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.`}
+          </p>
+        </div>
+      </BottomSheet>
     </>
   );
 }
