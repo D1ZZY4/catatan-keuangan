@@ -3,6 +3,7 @@ import { CheckCircle2, Circle, Copy, Trash2 } from "lucide-react";
 import type { Category, Transaction } from "@/shared/types";
 import { formatCurrency, formatDate } from "@/shared/utils/format";
 import { cn } from "@/shared/utils/misc";
+import { hapticTap } from "@/shared/utils/haptic";
 import { DynamicIcon } from "./DynamicIcon";
 
 const TYPE_LABELS: Record<string, string> = {
@@ -89,8 +90,7 @@ export function TransactionListItem({
       longPressTimer.current = setTimeout(() => {
         if (!dragRef.current.moved) {
           onLongPress();
-          // Vibrate if available
-          if (navigator.vibrate) navigator.vibrate(50);
+          hapticTap();
         }
       }, LONG_PRESS_DELAY);
     }

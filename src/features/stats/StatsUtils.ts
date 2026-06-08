@@ -1,4 +1,5 @@
 import type { Transaction } from "@/shared/types";
+import { INCOME_TYPES, EXPENSE_TYPES } from "@/shared/constants/transactionTypes";
 
 export type Period = "week" | "month" | "3months" | "6months" | "year" | "custom";
 export type StatsTab = "overview" | "debt";
@@ -48,11 +49,11 @@ export function inputValueToTs(val: string, endOfDay = false): number {
 }
 
 export function isIncome(tx: Transaction): boolean {
-  return ["income", "debt_received", "savings_withdraw", "invest_sell"].includes(tx.type);
+  return INCOME_TYPES.includes(tx.type);
 }
 
 export function isExpense(tx: Transaction): boolean {
-  return ["expense", "transfer_external", "debt_given", "savings_deposit", "invest_buy", "debt_repay"].includes(tx.type);
+  return EXPENSE_TYPES.includes(tx.type);
 }
 
 export function getMonthKey(date: number): string {

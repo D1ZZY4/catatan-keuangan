@@ -3,9 +3,7 @@ import { Lightbulb, TrendingDown, TrendingUp } from "lucide-react";
 import { useAppData } from "@/app/AppDataContext";
 import { formatCurrency } from "@/shared/utils/format";
 import { cn } from "@/shared/utils/misc";
-
-const EXPENSE_TYPES = ["expense", "transfer_external", "debt_given", "savings_deposit", "invest_buy"];
-const INCOME_TYPES = ["income", "debt_received", "savings_withdraw", "invest_sell"];
+import { EXPENSE_TYPES, INCOME_TYPES } from "@/shared/constants/transactionTypes";
 
 interface Insight {
   id: string;

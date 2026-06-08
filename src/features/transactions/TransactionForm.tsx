@@ -1,18 +1,9 @@
 import React, { useCallback, useEffect, useMemo, useState } from "react";
 import {
-  ArrowLeftRight,
-  BarChart2,
   BookmarkPlus,
-  CheckCircle,
-  DollarSign,
   Hash,
-  PiggyBank,
-  Send,
   Sparkles,
-  TrendingDown,
-  TrendingUp,
-  UserMinus,
-  UserPlus,
+  Users,
   Wallet,
   X,
 } from "lucide-react";
@@ -21,33 +12,15 @@ import { BottomSheet } from "@/shared/components/BottomSheet";
 import { CurrencyInput } from "@/shared/components/CurrencyInput";
 import { DatePicker } from "@/shared/components/DatePicker";
 import { DynamicIcon } from "@/shared/components/DynamicIcon";
+import { SplitBillSheet } from "@/features/transactions/SplitBillSheet";
 import { useAppData } from "@/app/AppDataContext";
 import { useAutoCategory } from "@/shared/hooks/useAutoCategory";
 import { useToast } from "@/shared/hooks/useToast";
 import { cn, newId } from "@/shared/utils/misc";
 import { db } from "@/shared/db/db";
 import type { TransactionTemplateRow } from "@/shared/db/db";
+import { TYPE_OPTIONS } from "@/shared/constants/transactionTypes";
 import type { Transaction, TransactionType } from "@/shared/types";
-
-const TYPE_OPTIONS: {
-  type: TransactionType;
-  label: string;
-  Icon: React.ElementType;
-  color: string;
-  bg: string;
-}[] = [
-  { type: "expense",           label: "Pengeluaran",    Icon: TrendingDown,   color: "text-danger",           bg: "bg-danger/10" },
-  { type: "income",            label: "Pemasukan",      Icon: TrendingUp,     color: "text-success",          bg: "bg-success/10" },
-  { type: "transfer_internal", label: "Transfer",        Icon: ArrowLeftRight, color: "text-accent-primary",   bg: "bg-accent-primary/10" },
-  { type: "transfer_external", label: "Kirim Uang",     Icon: Send,           color: "text-accent-secondary", bg: "bg-accent-secondary/10" },
-  { type: "debt_given",        label: "Piutang",        Icon: UserPlus,       color: "text-warning",          bg: "bg-warning/10" },
-  { type: "debt_received",     label: "Hutang",         Icon: UserMinus,      color: "text-warning",          bg: "bg-warning/10" },
-  { type: "debt_repay",        label: "Pelunasan",      Icon: CheckCircle,    color: "text-text-muted",       bg: "bg-bg-page" },
-  { type: "savings_deposit",   label: "Tabungan",       Icon: PiggyBank,      color: "text-accent-secondary", bg: "bg-accent-secondary/10" },
-  { type: "savings_withdraw",  label: "Tarik Tabungan", Icon: Wallet,         color: "text-success",          bg: "bg-success/10" },
-  { type: "invest_buy",        label: "Beli Investasi", Icon: BarChart2,      color: "text-accent-primary",   bg: "bg-accent-primary/10" },
-  { type: "invest_sell",       label: "Jual Investasi", Icon: DollarSign,     color: "text-success",          bg: "bg-success/10" },
-];
 
 interface FormState {
   type: TransactionType;
@@ -143,6 +116,7 @@ export function TransactionForm({
   const [tagInput, setTagInput] = useState("");
   const [categoryManuallySelected, setCategoryManuallySelected] = useState(!!editTransaction);
   const [templates, setTemplates] = useState<TransactionTemplateRow[]>([]);
+  const [splitBillOpen, setSplitBillOpen] = useState(false);
 
   // Load templates on open
   useEffect(() => {
@@ -539,16 +513,26 @@ export function TransactionForm({
             </>
           )}
 
-          {/* Save as template shortcut */}
+          {/* Save as template + Split Bill shortcuts */}
           {!editTransaction && (
-            <button
-              onClick={() => void handleSaveAsTemplate()}
-              className="flex items-center gap-2 text-xs text-text-muted hover:text-accent-primary transition-colors py-1"
-              aria-label="Simpan sebagai template"
-            >
-              <BookmarkPlus size={13} />
-              Simpan sebagai template
-            </button>
+            <div className="flex items-center gap-4">
+              <button
+                onClick={() => void handleSaveAsTemplate()}
+                className="flex items-center gap-2 text-xs text-text-muted hover:text-accent-primary transition-colors py-1"
+                aria-label="Simpan sebagai template"
+              >
+                <BookmarkPlus size={13} />
+                Template
+              </button>
+              <button
+                onClick={() => setSplitBillOpen(true)}
+                className="flex items-center gap-2 text-xs text-text-muted hover:text-accent-primary transition-colors py-1"
+                aria-label="Bagi tagihan"
+              >
+                <Users size={13} />
+                Bagi Tagihan
+              </button>
+            </div>
           )}
 
           <button
@@ -560,6 +544,23 @@ export function TransactionForm({
           </button>
         </div>
       </div>
+
+      <SplitBillSheet
+        isOpen={splitBillOpen}
+        onClose={() => setSplitBillOpen(false)}
+        onCreateDebt={(amount, name) => {
+          setSplitBillOpen(false);
+          setForm((s) => ({
+            ...s,
+            type: "debt_given",
+            amount,
+            amountRaw: String(amount),
+            linkedPersonName: name,
+          }));
+          setCategoryManuallySelected(false);
+          showToast(`Piutang ${name} siap dicatat`, "success");
+        }}
+      />
     </BottomSheet>
   );
 }

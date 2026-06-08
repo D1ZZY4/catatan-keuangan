@@ -19,6 +19,8 @@ import { DynamicIcon } from "@/shared/components/DynamicIcon";
 import { useToast } from "@/shared/hooks/useToast";
 import { formatCurrency } from "@/shared/utils/format";
 import { cn } from "@/shared/utils/misc";
+import { INCOME_TYPES, EXPENSE_TYPES, TRANSFER_TYPES } from "@/shared/constants/transactionTypes";
+import { hapticTap } from "@/shared/utils/haptic";
 import type { AppOutletContext } from "@/app/AppShell";
 import type { Transaction } from "@/shared/types";
 
@@ -31,10 +33,6 @@ interface FilterState {
   walletId: string;
   search: string;
 }
-
-const INCOME_TYPES = ["income", "debt_received", "savings_withdraw", "invest_sell"];
-const EXPENSE_TYPES = ["expense", "transfer_external", "debt_given", "savings_deposit", "invest_buy", "debt_repay"];
-const TRANSFER_TYPES = ["transfer"];
 
 function matchesType(tx: Transaction, txType: FilterType): boolean {
   if (txType === "all") return true;
@@ -158,7 +156,7 @@ export function TransactionPage() {
   const handleLongPress = (tx: Transaction) => {
     setSelectMode(true);
     setSelectedIds(new Set([tx.id]));
-    if (navigator.vibrate) navigator.vibrate(50);
+    hapticTap();
   };
 
   const handleToggleSelect = (id: string) => {

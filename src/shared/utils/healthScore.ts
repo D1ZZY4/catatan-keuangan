@@ -1,4 +1,5 @@
 import type { Transaction, Budget, Category } from "@/shared/types";
+import { INCOME_TYPES, EXPENSE_TYPES } from "@/shared/constants/transactionTypes";
 
 export interface HealthScoreBreakdown {
   hasData: boolean;
@@ -11,9 +12,6 @@ export interface HealthScoreBreakdown {
   hasIncomeData: boolean;
   label: "Sangat Baik" | "Baik" | "Cukup" | "Perlu Perhatian";
 }
-
-const INCOME_TYPES = ["income", "debt_received", "savings_withdraw", "invest_sell"];
-const EXPENSE_TYPES = ["expense", "transfer_external", "debt_given", "savings_deposit", "invest_buy"];
 
 function clamp(val: number, min: number, max: number) {
   return Math.max(min, Math.min(max, val));

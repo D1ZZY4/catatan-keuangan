@@ -33,6 +33,7 @@ import { DeleteAllSheet } from "./DeleteAllSheet";
 import { useDisplaySettings, type TextSizeKey } from "@/shared/hooks/useDisplaySettings";
 import type { DateFormatKey } from "@/shared/utils/format";
 import { PINNED_CURRENCIES } from "@/shared/data/currencies";
+import { isHapticEnabled, setHapticEnabled } from "@/shared/utils/haptic";
 
 export function SettingsPage() {
   const { state, registerWebAuthn, unregisterWebAuthn, lock, refreshSettings } = useAuth();
@@ -63,6 +64,7 @@ export function SettingsPage() {
   const [dateFormatOpen, setDateFormatOpen] = useState(false);
   const [textSizeOpen, setTextSizeOpen] = useState(false);
   const [baseCurrencyOpen, setBaseCurrencyOpen] = useState(false);
+  const [hapticOn, setHapticOn] = useState(() => isHapticEnabled());
 
   const isUnlocked = state.status === "unlocked";
   const userName = isUnlocked ? state.userName : "";
@@ -320,6 +322,17 @@ export function SettingsPage() {
               </span>
             }
             onClick={() => setTextSizeOpen(true)}
+          />
+          <SettingRow
+            icon={<Layers size={18} className={hapticOn ? "text-accent-primary" : "text-text-muted"} />}
+            label="Umpan Balik Sentuhan"
+            description={hapticOn ? "Aktif. Getaran saat interaksi penting." : "Nonaktif."}
+            right={<Toggle value={hapticOn} />}
+            onClick={() => {
+              const next = !hapticOn;
+              setHapticOn(next);
+              setHapticEnabled(next);
+            }}
           />
         </div>
 
