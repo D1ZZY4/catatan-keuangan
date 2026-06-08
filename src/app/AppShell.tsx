@@ -1,8 +1,8 @@
 import React, { lazy, Suspense, useCallback, useEffect, useRef, useState } from "react";
 import { Navigate, Outlet, useLocation } from "react-router-dom";
-import { Calculator } from "lucide-react";
 import { useAuth } from "./AuthContext";
 import { useAppData } from "./AppDataContext";
+import { useCalculator } from "./CalculatorContext";
 import { BottomNav } from "@/shared/components/BottomNav";
 import { FAB, type FABAction } from "@/shared/components/FAB";
 import { ToastContainer } from "@/shared/components/Toast";
@@ -48,6 +48,7 @@ export function AppShell() {
   const { budgets, transactions, categories, reminders } = useAppData();
   const location = useLocation();
   const notifyRanRef = useRef(false);
+  const { isOpen: calcOpen, openCalculator, closeCalculator } = useCalculator();
 
   const [txSheet, setTxSheet] = useState<{
     open: boolean;
@@ -56,7 +57,6 @@ export function AppShell() {
     prefill?: { amount?: number; note?: string; date?: number };
   }>({ open: false, type: "expense" });
 
-  const [calcOpen, setCalcOpen] = useState(false);
   const [ocrOpen, setOcrOpen] = useState(false);
 
   const openTransactionForm = useCallback(
@@ -69,8 +69,6 @@ export function AppShell() {
     },
     [],
   );
-
-  const openCalculator = useCallback(() => setCalcOpen(true), []);
 
   const handleOCRConfirm = useCallback((data: OCRConfirmedData) => {
     setOcrOpen(false);
@@ -146,16 +144,6 @@ export function AppShell() {
         />
       )}
 
-      <button
-        onClick={openCalculator}
-        className="fixed top-0 right-0 z-40 w-14 h-14 flex items-center justify-center active:scale-90 transition-transform"
-        aria-label="Kalkulator"
-      >
-        <div className="w-8 h-8 flex items-center justify-center rounded-full bg-bg-card shadow-card">
-          <Calculator size={16} className="text-text-muted" />
-        </div>
-      </button>
-
       <Suspense fallback={null}>
         {txSheet.open && (
           <TransactionForm
@@ -169,7 +157,7 @@ export function AppShell() {
       </Suspense>
 
       <Suspense fallback={null}>
-        <CalculatorSheet isOpen={calcOpen} onClose={() => setCalcOpen(false)} />
+        <CalculatorSheet isOpen={calcOpen} onClose={closeCalculator} />
       </Suspense>
 
       <Suspense fallback={null}>

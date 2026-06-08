@@ -63,14 +63,14 @@ export function BottomSheet({
   return (
     <div className="fixed inset-0 z-50 flex items-end">
       <div
-        className="absolute inset-0 bg-black/40 backdrop-blur-[2px] animate-fade-in"
+        className="absolute inset-0 bg-black/45 backdrop-blur-[3px] animate-fade-in"
         onClick={onClose}
       />
       <div
         ref={sheetRef}
         className={cn(
-          "relative w-full bg-bg-surface rounded-t-2xl shadow-2xl animate-sheet-in transition-transform",
-          fullHeight ? "max-h-[92dvh]" : "max-h-[85dvh]",
+          "relative w-full bg-bg-page rounded-t-[28px] shadow-2xl animate-sheet-in transition-transform",
+          fullHeight ? "max-h-[92dvh]" : "max-h-[88dvh]",
           "flex flex-col",
           className,
         )}
@@ -82,18 +82,20 @@ export function BottomSheet({
           onPointerMove={handlePointerMove}
           onPointerUp={handlePointerUp}
         >
-          <div className="flex justify-center pt-3 pb-1">
-            <div className="w-10 h-1 rounded-full bg-text-muted/30" />
+          <div className="flex justify-center pt-3 pb-2">
+            <div className="w-10 h-1 rounded-full bg-bg-card" />
           </div>
           {title !== undefined && (
             <div className="flex items-center justify-between px-5 pt-1 pb-3">
-              <h2 className="text-lg font-semibold text-text-primary">{title}</h2>
+              <h2 className="text-[17px] font-semibold text-text-primary tracking-tight">
+                {title}
+              </h2>
               <button
                 onClick={onClose}
-                className="p-2 rounded-full hover:bg-bg-card active:scale-95 transition-all"
+                className="w-8 h-8 flex items-center justify-center rounded-full bg-bg-card hover:bg-bg-card/80 active:scale-90 transition-all"
                 aria-label="Tutup"
               >
-                <X size={18} className="text-text-muted" />
+                <X size={15} className="text-text-muted" />
               </button>
             </div>
           )}

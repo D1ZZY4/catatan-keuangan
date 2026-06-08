@@ -15,14 +15,39 @@ interface SpeedDialOption {
   action: FABAction;
   label: string;
   Icon: React.ElementType;
-  color: string;
+  bg: string;
+  shadow: string;
 }
 
 const SPEED_DIAL: SpeedDialOption[] = [
-  { action: "income", label: "Pemasukan", Icon: TrendingUp, color: "bg-success" },
-  { action: "expense", label: "Pengeluaran", Icon: TrendingDown, color: "bg-danger" },
-  { action: "transfer", label: "Transfer", Icon: ArrowLeftRight, color: "bg-accent-primary" },
-  { action: "scan", label: "Scan Struk", Icon: ScanLine, color: "bg-warning" },
+  {
+    action: "scan",
+    label: "Scan Struk",
+    Icon: ScanLine,
+    bg: "bg-warning",
+    shadow: "shadow-warning/30",
+  },
+  {
+    action: "transfer",
+    label: "Transfer",
+    Icon: ArrowLeftRight,
+    bg: "bg-accent-primary",
+    shadow: "shadow-accent-primary/30",
+  },
+  {
+    action: "expense",
+    label: "Pengeluaran",
+    Icon: TrendingDown,
+    bg: "bg-danger",
+    shadow: "shadow-danger/30",
+  },
+  {
+    action: "income",
+    label: "Pemasukan",
+    Icon: TrendingUp,
+    bg: "bg-success",
+    shadow: "shadow-success/30",
+  },
 ];
 
 interface FABProps {
@@ -48,7 +73,7 @@ export function FAB({ onAction }: FABProps) {
     pressTimer.current = setTimeout(() => {
       didLongPress.current = true;
       setIsOpen(true);
-    }, 450);
+    }, 400);
     (e.target as HTMLElement).setPointerCapture(e.pointerId);
   };
 
@@ -77,33 +102,43 @@ export function FAB({ onAction }: FABProps) {
     <>
       {isOpen && (
         <div
-          className="fixed inset-0 z-40"
+          className="fixed inset-0 z-40 bg-black/20 backdrop-blur-[2px]"
           onClick={() => setIsOpen(false)}
         />
       )}
-      <div className="fixed right-5 bottom-[84px] z-50 flex flex-col items-end gap-3">
-        {isOpen &&
-          SPEED_DIAL.map((opt, i) => (
+
+      <div className="fixed right-4 bottom-[88px] z-50 flex flex-col items-end gap-3">
+        {SPEED_DIAL.map((opt, i) => {
+          const delay = isOpen ? i * 45 : (SPEED_DIAL.length - 1 - i) * 30;
+          return (
             <div
               key={opt.action}
-              className="flex items-center gap-3 animate-fade-in"
-              style={{ animationDelay: `${i * 40}ms` }}
+              className={cn(
+                "flex items-center gap-3 transition-all duration-200",
+                isOpen
+                  ? "opacity-100 translate-y-0"
+                  : "opacity-0 translate-y-4 pointer-events-none",
+              )}
+              style={{ transitionDelay: `${delay}ms` }}
             >
-              <span className="text-sm font-medium text-text-primary bg-bg-surface rounded-sm px-2 py-1 shadow-card whitespace-nowrap">
-                {opt.label}
-              </span>
+              <div className="bg-bg-surface/95 backdrop-blur-md rounded-full px-3.5 py-1.5 shadow-card border border-black/[0.06] dark:border-white/10">
+                <span className="text-sm font-medium text-text-primary whitespace-nowrap">
+                  {opt.label}
+                </span>
+              </div>
               <button
                 onClick={() => handleOptionClick(opt.action)}
                 className={cn(
-                  "w-12 h-12 rounded-2xl flex items-center justify-center text-white shadow-fab active:scale-95 transition-transform",
-                  opt.color,
+                  "w-12 h-12 rounded-[16px] flex items-center justify-center text-white active:scale-90 transition-transform shadow-lg",
+                  opt.bg,
                 )}
                 aria-label={opt.label}
               >
-                <opt.Icon size={20} />
+                <opt.Icon size={20} strokeWidth={2.2} />
               </button>
             </div>
-          ))}
+          );
+        })}
 
         <button
           onPointerDown={handlePointerDown}
@@ -111,12 +146,26 @@ export function FAB({ onAction }: FABProps) {
           onPointerLeave={handlePointerUp}
           onClick={handleClick}
           className={cn(
-            "w-14 h-14 rounded-2xl flex items-center justify-center text-white shadow-fab active:scale-95 transition-all",
-            isOpen ? "bg-text-muted rotate-45" : "bg-accent-primary",
+            "w-[60px] h-[60px] rounded-[20px] flex items-center justify-center text-white transition-all duration-200 active:scale-90",
+            isOpen
+              ? "bg-text-muted/80 shadow-lg rotate-45"
+              : "bg-accent-primary shadow-xl",
           )}
+          style={
+            isOpen
+              ? undefined
+              : {
+                  boxShadow:
+                    "0 8px 24px rgba(140,192,235,0.50), 0 2px 8px rgba(140,192,235,0.25)",
+                }
+          }
           aria-label={isOpen ? "Tutup" : "Tambah transaksi"}
         >
-          {isOpen ? <X size={24} /> : <Plus size={24} />}
+          {isOpen ? (
+            <X size={22} strokeWidth={2.5} />
+          ) : (
+            <Plus size={28} strokeWidth={2.5} />
+          )}
         </button>
       </div>
     </>
