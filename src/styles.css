@@ -1,0 +1,73 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --bg-page: #fff9d2;
+  --bg-card: #ffebcc;
+  --bg-surface: #ffffff;
+  --accent-primary: #8cc0eb;
+  --accent-secondary: #bfddf0;
+  --text-primary: #1a1814;
+  --text-muted: #6b6555;
+  --success: #2e7d32;
+  --warning: #e65100;
+  --danger: #c62828;
+}
+
+.dark {
+  --bg-page: #1a1910;
+  --bg-card: #242218;
+  --bg-surface: #2e2c20;
+  --accent-primary: #6aadd8;
+  --accent-secondary: #4a8faf;
+  --text-primary: #f0edd8;
+  --text-muted: #9e9a82;
+  --success: #4caf50;
+  --warning: #ff9800;
+  --danger: #ef5350;
+}
+
+@layer base {
+  html,
+  body,
+  #root {
+    height: 100%;
+  }
+  body {
+    background-color: var(--bg-page);
+    color: var(--text-primary);
+    font-family: "Plus Jakarta Sans", system-ui, sans-serif;
+    -webkit-font-smoothing: antialiased;
+    -webkit-tap-highlight-color: transparent;
+    overscroll-behavior-y: none;
+  }
+  * {
+    -webkit-user-select: none;
+    user-select: none;
+  }
+  input,
+  textarea,
+  [contenteditable="true"] {
+    -webkit-user-select: text;
+    user-select: text;
+  }
+}
+
+@layer utilities {
+  .skeleton-shimmer {
+    background-image: linear-gradient(
+      90deg,
+      var(--bg-card) 0%,
+      var(--bg-surface) 50%,
+      var(--bg-card) 100%
+    );
+    background-size: 200% 100%;
+  }
+  .safe-bottom {
+    padding-bottom: max(env(safe-area-inset-bottom), 0px);
+  }
+  .safe-top {
+    padding-top: max(env(safe-area-inset-top), 0px);
+  }
+}
