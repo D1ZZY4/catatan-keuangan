@@ -3,6 +3,7 @@ import {
   ArrowLeftRight,
   BarChart2,
   CheckCircle,
+  ChevronLeft,
   DollarSign,
   PiggyBank,
   Send,
@@ -224,9 +225,10 @@ export function TransactionForm({
           <div className="px-4 py-3 flex items-center gap-3 border-b border-bg-card">
             <button
               onClick={() => setStep(1)}
-              className="text-sm text-accent-primary font-medium"
+              className="text-sm text-accent-primary font-medium flex items-center gap-1"
             >
-              ← Jenis
+              <ChevronLeft size={14} />
+              Jenis
             </button>
             <p className="flex-1 text-sm font-medium text-text-primary text-center">
               {TYPE_OPTIONS.find((t) => t.type === form.type)?.label}

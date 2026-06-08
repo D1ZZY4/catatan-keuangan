@@ -1,5 +1,5 @@
 import React, { useMemo, useState } from "react";
-import { Archive, Copy, Pencil, Plus, RefreshCw, Trash2 as Trash, Undo2, WifiOff } from "lucide-react";
+import { Archive, ChevronDown, ChevronRight, Copy, Pencil, Plus, RefreshCw, Trash2 as Trash, Undo2, WifiOff } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { useAppData, computeWalletBalance } from "@/app/AppDataContext";
 import { WalletCard } from "@/shared/components/WalletCard";
@@ -218,9 +218,12 @@ export function WalletPage() {
           <div className="pt-2">
             <button
               onClick={() => setShowArchived((v) => !v)}
-              className="text-sm text-text-muted py-2 flex items-center gap-1"
+              className="text-sm text-text-muted py-2 flex items-center gap-1.5"
             >
-              {showArchived ? "▼" : "▶"} Dompet Diarsipkan ({archivedWallets.length})
+              {showArchived
+                ? <ChevronDown size={14} className="flex-shrink-0" />
+                : <ChevronRight size={14} className="flex-shrink-0" />}
+              Dompet Diarsipkan ({archivedWallets.length})
             </button>
             {showArchived && (
               <div className="grid grid-cols-2 gap-3 mt-2">

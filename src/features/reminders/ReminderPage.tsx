@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { Bell, BellOff, Plus, Trash2 } from "lucide-react";
+import { Bell, BellOff, Calendar, Clock, Plus, Trash2 } from "lucide-react";
 import { AppBar } from "@/shared/components/AppBar";
 import { BottomSheet } from "@/shared/components/BottomSheet";
 import { EmptyState } from "@/shared/components/EmptyState";
@@ -126,8 +126,9 @@ function ReminderForm({ isOpen, onClose, editReminder }: ReminderFormProps) {
           </div>
         </div>
 
-        <p className="text-xs text-text-muted bg-bg-card rounded-xl px-3 py-2.5">
-          📅 {dueDayLabel} · Notifikasi {notifyDaysBefore} hari sebelumnya
+        <p className="text-xs text-text-muted bg-bg-card rounded-xl px-3 py-2.5 flex items-center gap-1.5">
+          <Calendar size={12} className="flex-shrink-0" />
+          {dueDayLabel} · <Clock size={12} className="flex-shrink-0" /> Notifikasi {notifyDaysBefore} hari sebelumnya
         </p>
 
         <button onClick={() => void handleSave()} disabled={loading || !name.trim()}

@@ -231,7 +231,7 @@ function SetupSlide({ onComplete }: SetupSlideProps) {
         disabled={loading || !name.trim()}
         className="w-full py-4 bg-accent-primary text-white rounded-2xl font-semibold text-base active:scale-[0.98] transition-transform disabled:opacity-50 shadow-fab mt-2"
       >
-        {loading ? "Mempersiapkan…" : "Mulai Sekarang 🚀"}
+        {loading ? "Mempersiapkan…" : "Mulai Sekarang"}
       </button>
     </div>
   );
