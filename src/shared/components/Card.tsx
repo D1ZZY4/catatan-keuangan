@@ -41,7 +41,6 @@ export function Card({ children, style, onPress, padding = 16, radius = 16, ...p
 
 const styles = StyleSheet.create({
   pressed: {
-    shadowOpacity: 0.04,
     elevation: 1,
     transform: [{ scale: 0.99 }],
   },

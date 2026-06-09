@@ -89,3 +89,25 @@
 - eas.json: dev/preview/production profiles, EAS-BUILD.md tersedia ✓
 - 83 accessibilityLabel di seluruh codebase ✓
 - Semua M0–M21 selesai; siap EAS Build APK
+
+## Audit Sesi Ini (Batch 4 — shadow fix + dompet detail enhancement)
+
+- [x] shadows.ts → Platform.select: boxShadow untuk web, shadowColor/etc untuk native — hilangkan warning `shadow*`
+- [x] Card.tsx → hapus shadowOpacity inline (tidak perlu di pressed state)
+- [x] GuidedHomeTour.tsx + Toast.tsx → Platform.OS spread untuk shadow props
+- [x] dompet/[id].tsx → tambah kebab menu (MoreVertical → Modal bottom sheet) dengan opsi Edit, Archive/Unarchive, Hapus — match old-code WalletDetail reference
+- [x] dompet/[id].tsx → tx rows sekarang Pressable (navigasi ke transaksi/[id])
+- [x] dompet/[id].tsx → balance card sekarang tampilkan currency, type, tx count, archived badge
+- TypeScript: 0 error setelah semua fix ✓
+- Browser console: bersih, tidak ada shadow* warning ✓
+
+## Audit Sesi Ini (Batch 3 — old-code vs RN codebase)
+
+- [x] TxRow di transaksi.tsx → pakai EnrichedTransaction, tampilkan categoryName/note sesuai old-code pola
+- [x] useTransactionList.ts → export EnrichedTransaction type
+- [x] `pointerEvents` deprecation → dipindah ke style object di FAB.tsx + Toast.tsx
+- [x] Statistik tab ketiga "Hutang & Piutang" → import DebtTracker + debtEntries, tab ke-3 aktif
+- [x] BudgetRow + RemindersRow → ditambahkan ke beranda.tsx (hidden jika kosong)
+- [x] ReminderPeriod fix → 'bulanan' bukan 'monthly'
+- [x] Beranda imports → useBudgets, useReminders, ProgressBar, Bell, Layers
+- TypeScript: 0 error setelah semua fix ✓

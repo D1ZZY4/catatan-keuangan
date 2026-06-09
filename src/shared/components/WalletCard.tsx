@@ -2,7 +2,6 @@ import React, { memo } from 'react';
 import { View, Text, Pressable, StyleSheet } from 'react-native';
 import { useTheme } from '@/shared/hooks/useTheme';
 import { formatCurrency } from '@/shared/utils/formatters';
-import type { Wallet } from '@/shared/types';
 
 const WALLET_TYPE_LABELS: Record<string, string> = {
   cash: 'Tunai',
@@ -16,7 +15,7 @@ const WALLET_TYPE_LABELS: Record<string, string> = {
 };
 
 interface WalletCardProps {
-  wallet: Wallet;
+  wallet: { id: string; name: string; color: string; currency: string; type: string; balance: number };
   onPress?: () => void;
 }
 

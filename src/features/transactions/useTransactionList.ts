@@ -1,5 +1,6 @@
 import { useState, useEffect, useCallback } from 'react';
 import { database } from '@/shared/db';
+import type { TransactionModel, CategoryModel, WalletModel } from '@/shared/db';
 import type { Transaction, TransactionType } from '@/shared/types';
 import { startOfDay, startOfMonth, groupBy } from '@/shared/utils/helpers';
 import { isIncomeType, isExpenseType, isTransferType } from '@/shared/constants/transactionTypes';
@@ -7,9 +8,16 @@ import { isIncomeType, isExpenseType, isTransferType } from '@/shared/constants/
 type PeriodFilter = 'today' | 'week' | 'month' | 'all';
 type TypeFilter = 'all' | 'income' | 'expense' | 'transfer';
 
+export interface EnrichedTransaction extends Transaction {
+  categoryName: string;
+  categoryColor: string;
+  categoryIcon: string;
+  walletName: string;
+}
+
 export interface TransactionSection {
   date: number;
-  data: Transaction[];
+  data: EnrichedTransaction[];
   total: number;
   title: string;
 }
@@ -39,27 +47,39 @@ export function useTransactionList({ period, typeFilter, search }: Params) {
         startTs = startOfMonth(now);
       }
 
-      const txCollection = database.get<import('@/shared/db').TransactionModel>('transactions');
-      let records = await txCollection.query().fetch();
+      const [records, categories, wallets] = await Promise.all([
+        database.get<TransactionModel>('transactions').query().fetch(),
+        database.get<CategoryModel>('categories').query().fetch(),
+        database.get<WalletModel>('wallets').query().fetch(),
+      ]);
 
-      if (period !== 'all') {
-        records = records.filter(tx => tx.date >= startTs);
-      }
+      const catMap = Object.fromEntries(categories.map(c => [c.id, c]));
+      const walletMap = Object.fromEntries(wallets.map(w => [w.id, w]));
 
-      let mapped: Transaction[] = records.map(tx => ({
-        id: tx.id,
-        type: tx.type as TransactionType,
-        walletId: tx.walletId,
-        ...(tx.toWalletId ? { toWalletId: tx.toWalletId } : {}),
-        categoryId: tx.categoryId,
-        amount: tx.amount,
-        currency: tx.currency,
-        ...(tx.note ? { note: tx.note } : {}),
-        ...(tx.personName ? { personName: tx.personName } : {}),
-        ...(tx.personPhone ? { personPhone: tx.personPhone } : {}),
-        date: tx.date,
-        createdAt: tx.createdAt.getTime(),
-      }));
+      let filtered = period !== 'all' ? records.filter(tx => tx.date >= startTs) : records;
+
+      let mapped: EnrichedTransaction[] = filtered.map(tx => {
+        const cat = catMap[tx.categoryId];
+        const wallet = walletMap[tx.walletId];
+        return {
+          id: tx.id,
+          type: tx.type as TransactionType,
+          walletId: tx.walletId,
+          ...(tx.toWalletId ? { toWalletId: tx.toWalletId } : {}),
+          categoryId: tx.categoryId,
+          amount: tx.amount,
+          currency: tx.currency,
+          ...(tx.note ? { note: tx.note } : {}),
+          ...(tx.personName ? { personName: tx.personName } : {}),
+          ...(tx.personPhone ? { personPhone: tx.personPhone } : {}),
+          date: tx.date,
+          createdAt: tx.createdAt.getTime(),
+          categoryName: cat?.name ?? '',
+          categoryColor: cat?.color ?? '#999',
+          categoryIcon: cat?.icon ?? 'circle',
+          walletName: wallet?.name ?? '',
+        };
+      });
 
       if (typeFilter !== 'all') {
         mapped = mapped.filter(tx => {
@@ -75,7 +95,8 @@ export function useTransactionList({ period, typeFilter, search }: Params) {
         mapped = mapped.filter(tx =>
           tx.note?.toLowerCase().includes(q) ||
           tx.personName?.toLowerCase().includes(q) ||
-          tx.amount.toString().includes(q)
+          tx.categoryName.toLowerCase().includes(q) ||
+          tx.amount.toString().includes(q),
         );
       }
 

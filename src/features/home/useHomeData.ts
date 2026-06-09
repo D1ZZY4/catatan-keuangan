@@ -13,6 +13,7 @@ export interface HomeWallet {
   icon: string;
   color: string;
   currency: string;
+  type: string;
   balance: number;
   balanceFormatted: string;
 }
@@ -72,7 +73,7 @@ export function useHomeData() {
 
       const mappedWallets: HomeWallet[] = wallets.map(w => ({
         id: w.id, name: w.name, icon: w.icon, color: w.color,
-        currency: w.currency, balance: w.balance,
+        currency: w.currency, type: w.type, balance: w.balance,
         balanceFormatted: formatCurrency(w.balance, w.currency),
       }));
 

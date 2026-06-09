@@ -1,8 +1,9 @@
 import React, { useRef, useState, useEffect, useCallback } from 'react';
 import {
   View, Text, Pressable, StyleSheet, Dimensions, TextInput,
-  PanResponder, Animated, ScrollView, Switch,
+  PanResponder, Animated, ScrollView, Switch, Platform,
 } from 'react-native';
+
 import Svg, {
   Rect, Circle, Path, Ellipse, Text as SvgText, G,
 } from 'react-native-svg';
@@ -18,6 +19,7 @@ import { DEFAULT_WALLETS } from '@/shared/constants/defaultWallets';
 import { ALL_DEFAULT_CATEGORIES } from '@/shared/constants/defaultCategories';
 import { ConfettiCannon, type ConfettiCannonRef } from '@/shared/components/ConfettiCannon';
 
+const ND = Platform.OS !== 'web';
 const { width: SCREEN_WIDTH } = Dimensions.get('window');
 void SCREEN_WIDTH;
 
@@ -301,7 +303,7 @@ function BiometricStep({ c, onFinish }: { c: AppColors; onFinish: () => void }) 
   const [bioError, setBioError] = useState('');
 
   useEffect(() => {
-    Animated.timing(fadeAnim, { toValue: 1, duration: 300, useNativeDriver: true }).start();
+    Animated.timing(fadeAnim, { toValue: 1, duration: 300, useNativeDriver: ND }).start();
   }, [fadeAnim]);
 
   const handleBiometric = async () => {
@@ -395,8 +397,8 @@ function WelcomeScreen({ c, userName, onContinue }: { c: AppColors; userName: st
 
   useEffect(() => {
     Animated.parallel([
-      Animated.timing(fadeAnim, { toValue: 1, duration: 500, useNativeDriver: true }),
-      Animated.timing(slideAnim, { toValue: 0, duration: 500, useNativeDriver: true }),
+      Animated.timing(fadeAnim, { toValue: 1, duration: 500, useNativeDriver: ND }),
+      Animated.timing(slideAnim, { toValue: 0, duration: 500, useNativeDriver: ND }),
     ]).start();
     const t = setTimeout(() => confettiRef.current?.shoot(), 200);
     return () => clearTimeout(t);
@@ -472,8 +474,8 @@ export default function OnboardingScreen() {
   const animateTransition = useCallback((toIndex: number) => {
     currentRef.current = toIndex;
     Animated.sequence([
-      Animated.timing(fadeAnim, { toValue: 0, duration: 100, useNativeDriver: true }),
-      Animated.timing(fadeAnim, { toValue: 1, duration: 200, useNativeDriver: true }),
+      Animated.timing(fadeAnim, { toValue: 0, duration: 100, useNativeDriver: ND }),
+      Animated.timing(fadeAnim, { toValue: 1, duration: 200, useNativeDriver: ND }),
     ]).start();
     setCurrent(toIndex);
   }, [fadeAnim]);
@@ -487,8 +489,8 @@ export default function OnboardingScreen() {
           if (next !== currentRef.current) {
             currentRef.current = next;
             Animated.sequence([
-              Animated.timing(fadeAnim, { toValue: 0, duration: 100, useNativeDriver: true }),
-              Animated.timing(fadeAnim, { toValue: 1, duration: 200, useNativeDriver: true }),
+              Animated.timing(fadeAnim, { toValue: 0, duration: 100, useNativeDriver: ND }),
+              Animated.timing(fadeAnim, { toValue: 1, duration: 200, useNativeDriver: ND }),
             ]).start();
             setCurrent(next);
           }
@@ -497,8 +499,8 @@ export default function OnboardingScreen() {
           if (prev !== currentRef.current) {
             currentRef.current = prev;
             Animated.sequence([
-              Animated.timing(fadeAnim, { toValue: 0, duration: 100, useNativeDriver: true }),
-              Animated.timing(fadeAnim, { toValue: 1, duration: 200, useNativeDriver: true }),
+              Animated.timing(fadeAnim, { toValue: 0, duration: 100, useNativeDriver: ND }),
+              Animated.timing(fadeAnim, { toValue: 1, duration: 200, useNativeDriver: ND }),
             ]).start();
             setCurrent(prev);
           }

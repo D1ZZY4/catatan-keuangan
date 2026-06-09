@@ -5,16 +5,19 @@ import {
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useTheme } from '@/shared/hooks/useTheme';
 import { SkeletonCard } from '@/shared/components/SkeletonCard';
-import { ProgressBar } from '@/shared/components/ProgressBar';
 import { GuidedHomeTour, type TourStep } from '@/shared/components/GuidedHomeTour';
 import { WalletCard } from '@/shared/components/WalletCard';
 import { useRouter } from 'expo-router';
 import { useHomeData } from '@/features/home/useHomeData';
+import { useBudgets } from '@/features/budgets/useBudgets';
+import { useReminders } from '@/features/reminders/useReminders';
+import { ProgressBar } from '@/shared/components/ProgressBar';
 import { formatCurrency } from '@/shared/utils/formatters';
 import { SecureStorage } from '@/shared/utils/secureStorage';
 import {
   TrendingUp, TrendingDown, Plus, ScanLine, ArrowLeftRight,
   Activity, ChevronDown, ChevronUp, Wallet, ChevronRight, ArrowUpDown,
+  Bell, Layers,
 } from 'lucide-react-native';
 
 const TOUR_STEPS: TourStep[] = [
@@ -78,6 +81,8 @@ export default function BerandaScreen() {
   const insets = useSafeAreaInsets();
   const router = useRouter();
   const { wallets, totalBalance, monthIncome, monthExpense, recentTransactions, loading, reload } = useHomeData();
+  const { budgets } = useBudgets();
+  const { reminders } = useReminders();
   const [refreshing, setRefreshing] = useState(false);
   const [balanceVisible, setBalanceVisible] = useState(true);
   const [healthExpanded, setHealthExpanded] = useState(false);
@@ -97,7 +102,7 @@ export default function BerandaScreen() {
   const health = useMemo(() => calcHealthScore(totalBalance, monthIncome, monthExpense), [totalBalance, monthIncome, monthExpense]);
   const handleRefresh = useCallback(async () => { setRefreshing(true); await reload(); setRefreshing(false); }, [reload]);
   const handleAddWallet = useCallback(() => { router.push('/(modals)/form-dompet'); }, [router]);
-  const activeWallets = useMemo(() => wallets.filter(w => !w.isArchived), [wallets]);
+  const activeWallets = wallets;
 
   const heroColor = health.score >= 80 ? colors.success : health.score >= 60 ? colors.accentPrimary : health.score >= 40 ? colors.warning : colors.danger;
   const heroBg = `${heroColor}15`;
@@ -291,6 +296,106 @@ export default function BerandaScreen() {
             )}
           </View>
 
+          {/* ── Budget Row ── */}
+          {budgets.length > 0 && (
+            <View style={styles.section}>
+              <View style={styles.sectionHeader}>
+                <View style={styles.sectionTitleRow}>
+                  <Layers size={14} color={colors.textMuted} />
+                  <Text style={[styles.sectionTitle, { color: colors.textPrimary, fontFamily: 'DMSans-SemiBold' }]}>Anggaran Bulan Ini</Text>
+                </View>
+                <Pressable onPress={() => router.push('/(tabs)/pengaturan')} style={styles.seeAllRow}>
+                  <Text style={[styles.seeAll, { color: colors.textMuted, fontFamily: 'DMSans-Medium' }]}>Kelola</Text>
+                </Pressable>
+              </View>
+              <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={{ gap: 10, paddingBottom: 4 }}>
+                {budgets.map(b => {
+                  const isOver = b.progress >= 1;
+                  const isNear = b.progress > 0.8;
+                  const cardBg = isOver ? `${colors.danger}12` : isNear ? `${colors.warning}12` : colors.bgCard;
+                  const borderColor = isOver ? `${colors.danger}30` : isNear ? `${colors.warning}30` : 'transparent';
+                  return (
+                    <View key={b.id} style={[styles.budgetCard, { backgroundColor: cardBg, borderColor }]}>
+                      <View style={styles.budgetHeader}>
+                        <View style={[styles.budgetIcon, { backgroundColor: `${b.categoryColor}22` }]}>
+                          <Text style={{ fontSize: 13 }}>💰</Text>
+                        </View>
+                        <Text style={[styles.budgetName, { color: colors.textPrimary, fontFamily: 'DMSans-SemiBold' }]} numberOfLines={1}>
+                          {b.categoryName}
+                        </Text>
+                      </View>
+                      <ProgressBar progress={b.progress} height={6} color={isOver ? colors.danger : isNear ? colors.warning : colors.accentPrimary} />
+                      <View style={styles.budgetFooter}>
+                        <Text style={[styles.budgetAmt, { color: colors.textMuted, fontFamily: 'DMSans-Regular' }]}>{formatCurrency(b.spent, b.currency)}</Text>
+                        <Text style={[styles.budgetAmt, { color: colors.textMuted, fontFamily: 'DMSans-Regular' }]}>{formatCurrency(b.amount, b.currency)}</Text>
+                      </View>
+                    </View>
+                  );
+                })}
+                <Pressable
+                  onPress={() => router.push('/(tabs)/pengaturan')}
+                  style={[styles.budgetAdd, { backgroundColor: colors.bgCard, borderColor: colors.bgSurface }]}
+                >
+                  <Plus size={14} color={colors.textMuted} />
+                  <Text style={[styles.addLabel, { color: colors.textMuted, fontFamily: 'DMSans-SemiBold' }]}>Baru</Text>
+                </Pressable>
+              </ScrollView>
+            </View>
+          )}
+
+          {/* ── Reminders Row ── */}
+          {reminders.filter(r => r.isActive).length > 0 && (
+            <View style={styles.section}>
+              <View style={styles.sectionHeader}>
+                <View style={styles.sectionTitleRow}>
+                  <Bell size={14} color={colors.warning} />
+                  <Text style={[styles.sectionTitle, { color: colors.textPrimary, fontFamily: 'DMSans-SemiBold' }]}>Pengingat Tagihan</Text>
+                </View>
+                <Pressable onPress={() => router.push('/(tabs)/pengaturan')} style={styles.seeAllRow}>
+                  <Text style={[styles.seeAll, { color: colors.textMuted, fontFamily: 'DMSans-Medium' }]}>Lihat semua</Text>
+                </Pressable>
+              </View>
+              <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={{ gap: 10, paddingBottom: 4 }}>
+                {reminders.filter(r => r.isActive).slice(0, 5).map(r => {
+                  const today = new Date();
+                  let dueDate: Date;
+                  if (r.period === 'bulanan') {
+                    dueDate = new Date(today.getFullYear(), today.getMonth(), r.dueDay);
+                    if (dueDate.getTime() < Date.now()) dueDate = new Date(today.getFullYear(), today.getMonth() + 1, r.dueDay);
+                  } else {
+                    const diff = (r.dueDay - today.getDay() + 7) % 7;
+                    dueDate = new Date(today);
+                    dueDate.setDate(today.getDate() + diff);
+                  }
+                  const daysLeft = Math.ceil((dueDate.getTime() - Date.now()) / 86400000);
+                  const isUrgent = daysLeft <= 3;
+                  return (
+                    <View key={r.id} style={[styles.reminderCard, {
+                      backgroundColor: isUrgent ? `${colors.warning}14` : colors.bgCard,
+                      borderColor: isUrgent ? `${colors.warning}35` : 'transparent',
+                    }]}>
+                      <View style={[styles.reminderBadge, {
+                        backgroundColor: isUrgent ? `${colors.warning}25` : `${colors.bgSurface}CC`,
+                      }]}>
+                        <Text style={[styles.reminderBadgeText, { color: isUrgent ? colors.warning : colors.textMuted, fontFamily: 'DMSans-Bold' }]}>
+                          {daysLeft === 0 ? 'Hari ini!' : daysLeft === 1 ? 'Besok' : `${daysLeft}h lagi`}
+                        </Text>
+                      </View>
+                      <Text style={[styles.reminderName, { color: colors.textPrimary, fontFamily: 'DMSans-SemiBold' }]} numberOfLines={1}>
+                        {r.name}
+                      </Text>
+                      {r.amount !== undefined && (
+                        <Text style={[styles.reminderAmt, { color: colors.textPrimary, fontFamily: 'InstrumentSerif-Regular' }]}>
+                          {formatCurrency(r.amount, r.currency)}
+                        </Text>
+                      )}
+                    </View>
+                  );
+                })}
+              </ScrollView>
+            </View>
+          )}
+
           {/* ── Recent Transactions ── */}
           <View style={styles.section}>
             <View style={styles.sectionHeader}>
@@ -414,4 +519,16 @@ const styles = StyleSheet.create({
   txName: { fontSize: 14 },
   txNote: { fontSize: 11, marginTop: 1 },
   txAmt: { fontSize: 14 },
+  budgetCard: { width: 175, borderRadius: 20, padding: 14, borderWidth: 1, gap: 8 },
+  budgetHeader: { flexDirection: 'row', alignItems: 'center', gap: 8, marginBottom: 2 },
+  budgetIcon: { width: 32, height: 32, borderRadius: 10, alignItems: 'center', justifyContent: 'center' },
+  budgetName: { fontSize: 12, flex: 1 },
+  budgetFooter: { flexDirection: 'row', justifyContent: 'space-between' },
+  budgetAmt: { fontSize: 10 },
+  budgetAdd: { width: 110, borderRadius: 20, borderWidth: 2, borderStyle: 'dashed', alignItems: 'center', justifyContent: 'center', gap: 6, paddingVertical: 8 },
+  reminderCard: { width: 160, borderRadius: 20, padding: 14, borderWidth: 1, gap: 6 },
+  reminderBadge: { alignSelf: 'flex-start', paddingHorizontal: 8, paddingVertical: 2, borderRadius: 99, marginBottom: 2 },
+  reminderBadgeText: { fontSize: 10 },
+  reminderName: { fontSize: 12 },
+  reminderAmt: { fontSize: 14 },
 });

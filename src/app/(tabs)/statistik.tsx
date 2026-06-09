@@ -7,11 +7,12 @@ import { SkeletonCard } from '@/shared/components/SkeletonCard';
 import { ProgressBar } from '@/shared/components/ProgressBar';
 import { LocalInsights } from '@/shared/components/LocalInsights';
 import { useStatData } from '@/features/stats/useStatData';
+import { DebtTracker } from '@/shared/components/DebtTracker';
 import { formatCurrency, formatCompact } from '@/shared/utils/formatters';
 import { BarChart3 } from 'lucide-react-native';
 
 type PeriodFilter = 'week' | 'month' | '3month' | '6month' | 'year';
-type StatsTab = 'overview' | 'kategori';
+type StatsTab = 'overview' | 'kategori' | 'hutang';
 
 const PERIOD_OPTIONS: { value: PeriodFilter; label: string }[] = [
   { value: 'week',   label: 'Minggu ini' },
@@ -28,7 +29,7 @@ export default function StatistikScreen() {
   const insets = useSafeAreaInsets();
   const [period, setPeriod] = useState<PeriodFilter>('month');
   const [activeTab, setActiveTab] = useState<StatsTab>('overview');
-  const { totalIncome, totalExpense, categoryExpenses, allTransactions, allCategories, loading } = useStatData(period);
+  const { totalIncome, totalExpense, categoryExpenses, debtEntries, allTransactions, allCategories, loading } = useStatData(period);
 
   const netFlow = totalIncome - totalExpense;
   const savingsRate = totalIncome > 0 ? ((totalIncome - totalExpense) / totalIncome) * 100 : 0;
@@ -53,25 +54,29 @@ export default function StatistikScreen() {
 
         {/* Tab Navigation */}
         <View style={[styles.tabBar, { borderBottomColor: colors.bgCard }]}>
-          {(['overview', 'kategori'] as StatsTab[]).map(tab => (
+          {([
+            { value: 'overview', label: 'Ringkasan' },
+            { value: 'kategori', label: 'Per Kategori' },
+            { value: 'hutang',   label: 'Hutang & Piutang' },
+          ] as { value: StatsTab; label: string }[]).map(tab => (
             <Pressable
-              key={tab}
-              onPress={() => setActiveTab(tab)}
-              style={[styles.tabItem, activeTab === tab && { borderBottomColor: colors.accentPrimary, borderBottomWidth: 2 }]}
+              key={tab.value}
+              onPress={() => setActiveTab(tab.value)}
+              style={[styles.tabItem, activeTab === tab.value && { borderBottomColor: colors.accentPrimary, borderBottomWidth: 2 }]}
             >
               <Text style={[
                 styles.tabLabel,
                 { fontFamily: 'DMSans-SemiBold' },
-                activeTab === tab ? { color: colors.accentPrimary } : { color: colors.textMuted },
+                activeTab === tab.value ? { color: colors.accentPrimary } : { color: colors.textMuted },
               ]}>
-                {tab === 'overview' ? 'Ringkasan' : 'Per Kategori'}
+                {tab.label}
               </Text>
             </Pressable>
           ))}
         </View>
 
         {/* Period Pills */}
-        {activeTab === 'overview' && (
+        {(activeTab === 'overview' || activeTab === 'kategori') && (
           <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.periodRow}>
             {PERIOD_OPTIONS.map(opt => (
               <Pressable
@@ -188,26 +193,12 @@ export default function StatistikScreen() {
           </>
         )}
 
+        {activeTab === 'hutang' && (
+          <DebtTracker entries={debtEntries} />
+        )}
+
         {activeTab === 'kategori' && (
           <>
-            {/* Period pills for kategori tab too */}
-            <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.periodRow}>
-              {PERIOD_OPTIONS.map(opt => (
-                <Pressable
-                  key={opt.value}
-                  onPress={() => setPeriod(opt.value)}
-                  style={[
-                    styles.periodPill,
-                    period === opt.value ? { backgroundColor: colors.accentPrimary } : { backgroundColor: colors.bgCard },
-                  ]}
-                >
-                  <Text style={[styles.periodLabel, { fontFamily: 'DMSans-Medium' }, period === opt.value ? { color: colors.white } : { color: colors.textMuted }]}>
-                    {opt.label}
-                  </Text>
-                </Pressable>
-              ))}
-            </ScrollView>
-
             {categoryExpenses.length === 0 ? (
               <EmptyState
                 title="Belum ada data"

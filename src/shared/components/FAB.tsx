@@ -1,12 +1,15 @@
 import React, { useRef, useState, useCallback } from 'react';
 import {
-  View, Pressable, StyleSheet, Animated, Text, Modal,
+  View, Pressable, StyleSheet, Animated, Text, Modal, Platform,
 } from 'react-native';
+
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { AlignJustify, TrendingDown, TrendingUp, ArrowLeftRight, ScanLine, X } from 'lucide-react-native';
 import * as Haptics from 'expo-haptics';
 import { useTheme } from '@/shared/hooks/useTheme';
 import { useRouter } from 'expo-router';
+
+const ND = Platform.OS !== 'web';
 
 interface QuickAction {
   label: string;
@@ -32,13 +35,13 @@ export function FAB() {
     void Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
     setOpen(true);
     Animated.parallel([
-      Animated.spring(scaleAnim, { toValue: 1, useNativeDriver: true }),
-      Animated.timing(backdropAnim, { toValue: 1, duration: 200, useNativeDriver: true }),
+      Animated.spring(scaleAnim, { toValue: 1, useNativeDriver: ND }),
+      Animated.timing(backdropAnim, { toValue: 1, duration: 200, useNativeDriver: ND }),
       ...itemAnims.map((anim, i) =>
         Animated.spring(anim, {
           toValue: 1,
           delay: i * 60,
-          useNativeDriver: true,
+          useNativeDriver: ND,
         })
       ),
     ]).start();
@@ -46,10 +49,10 @@ export function FAB() {
 
   const closeFAB = useCallback((cb?: () => void) => {
     Animated.parallel([
-      Animated.timing(scaleAnim, { toValue: 0, duration: 200, useNativeDriver: true }),
-      Animated.timing(backdropAnim, { toValue: 0, duration: 200, useNativeDriver: true }),
+      Animated.timing(scaleAnim, { toValue: 0, duration: 200, useNativeDriver: ND }),
+      Animated.timing(backdropAnim, { toValue: 0, duration: 200, useNativeDriver: ND }),
       ...itemAnims.map(anim =>
-        Animated.timing(anim, { toValue: 0, duration: 150, useNativeDriver: true })
+        Animated.timing(anim, { toValue: 0, duration: 150, useNativeDriver: ND })
       ),
     ]).start(() => {
       setOpen(false);
@@ -96,7 +99,7 @@ export function FAB() {
             <Pressable style={StyleSheet.absoluteFill} onPress={() => closeFAB()} accessibilityLabel="Tutup menu" />
           </Animated.View>
 
-          <View style={[styles.actionsContainer, { bottom: fabBottom + 68 }]} pointerEvents="box-none">
+          <View style={[styles.actionsContainer, { bottom: fabBottom + 68, pointerEvents: 'box-none' }]}>
             {[...quickActions].reverse().map((action, reverseIndex) => {
               const index = quickActions.length - 1 - reverseIndex;
               const anim = itemAnims[index];
@@ -129,7 +132,7 @@ export function FAB() {
         </Modal>
       )}
 
-      <View style={[styles.fabWrapper, { bottom: fabBottom, right: 20 }]} pointerEvents="box-none">
+      <View style={[styles.fabWrapper, { bottom: fabBottom, right: 20, pointerEvents: 'box-none' }]}>
         <Pressable
           onPress={open ? () => closeFAB() : openFAB}
           style={({ pressed }) => [

@@ -1,10 +1,13 @@
 import React, { createContext, useContext, useState, useCallback, useRef, useEffect } from 'react';
-import { View, Text, Animated, StyleSheet, Pressable } from 'react-native';
+import { View, Text, Animated, StyleSheet, Pressable, Platform } from 'react-native';
+
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { CheckCircle, XCircle, AlertCircle, Info, X } from 'lucide-react-native';
 import { useTheme } from '@/shared/hooks/useTheme';
 import type { ToastType } from '@/shared/types';
 import { generateId } from '@/shared/utils/helpers';
+
+const ND = Platform.OS !== 'web';
 
 interface ToastItem {
   id: string;
@@ -25,14 +28,14 @@ function ToastItemView({ item, onDismiss }: { item: ToastItem; onDismiss: () => 
 
   useEffect(() => {
     Animated.parallel([
-      Animated.spring(opacity, { toValue: 1, useNativeDriver: true }),
-      Animated.spring(translateY, { toValue: 0, useNativeDriver: true }),
+      Animated.spring(opacity, { toValue: 1, useNativeDriver: ND }),
+      Animated.spring(translateY, { toValue: 0, useNativeDriver: ND }),
     ]).start();
 
     const timer = setTimeout(() => {
       Animated.parallel([
-        Animated.timing(opacity, { toValue: 0, duration: 250, useNativeDriver: true }),
-        Animated.timing(translateY, { toValue: -20, duration: 250, useNativeDriver: true }),
+        Animated.timing(opacity, { toValue: 0, duration: 250, useNativeDriver: ND }),
+        Animated.timing(translateY, { toValue: -20, duration: 250, useNativeDriver: ND }),
       ]).start(onDismiss);
     }, 3000);
 
@@ -87,7 +90,7 @@ export function ToastProvider({ children }: { children: React.ReactNode }) {
   return (
     <ToastContext.Provider value={{ showToast }}>
       {children}
-      <View style={[styles.container, { top: insets.top + 8 }]} pointerEvents="box-none">
+      <View style={[styles.container, { top: insets.top + 8, pointerEvents: 'box-none' }]}>
         {toasts.map(item => (
           <ToastItemView key={item.id} item={item} onDismiss={() => dismiss(item.id)} />
         ))}
@@ -116,11 +119,10 @@ const styles = StyleSheet.create({
     padding: 12,
     borderRadius: 12,
     gap: 10,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.12,
-    shadowRadius: 8,
     elevation: 6,
+    ...(require('react-native').Platform.OS === 'web'
+      ? { boxShadow: '0px 4px 8px rgba(0,0,0,0.12)' }
+      : { shadowColor: '#000', shadowOffset: { width: 0, height: 4 }, shadowOpacity: 0.12, shadowRadius: 8 }),
   },
   message: {
     flex: 1,

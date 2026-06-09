@@ -12,8 +12,8 @@ import {
   TrendingUp, TrendingDown, ArrowLeftRight, Send, UserPlus, UserMinus,
   CheckCircle, PiggyBank, Wallet, BarChart2, DollarSign, ArrowUpDown,
 } from 'lucide-react-native';
-import { useTransactionList } from '@/features/transactions/useTransactionList';
-import type { Transaction, TransactionType } from '@/shared/types';
+import { useTransactionList, type EnrichedTransaction } from '@/features/transactions/useTransactionList';
+import type { TransactionType } from '@/shared/types';
 import { isIncomeType, isExpenseType, getTypeOption } from '@/shared/constants/transactionTypes';
 import { useRouter } from 'expo-router';
 
@@ -52,7 +52,7 @@ function getTypeIcon(type: TransactionType, color: string) {
   }
 }
 
-interface TxRowProps { tx: Transaction; showDivider: boolean }
+interface TxRowProps { tx: EnrichedTransaction; showDivider: boolean }
 
 function TxRow({ tx, showDivider }: TxRowProps) {
   const { colors } = useTheme();
@@ -61,7 +61,9 @@ function TxRow({ tx, showDivider }: TxRowProps) {
   const isExpense = isExpenseType(tx.type);
   const amtColor = isIncome ? colors.success : isExpense ? colors.danger : colors.accentPrimary;
   const prefix = isIncome ? '+' : isExpense ? '-' : '';
-  const label = getTypeOption(tx.type)?.label ?? tx.type;
+  const typeLabel = getTypeOption(tx.type)?.label ?? tx.type;
+  const primaryLabel = tx.note ?? tx.categoryName ?? typeLabel;
+  const secondaryLabel = tx.note && tx.categoryName ? tx.categoryName : null;
 
   return (
     <>
@@ -71,18 +73,18 @@ function TxRow({ tx, showDivider }: TxRowProps) {
           styles.txRow,
           pressed && { backgroundColor: `${colors.bgSurface}60` },
         ]}
-        accessibilityLabel={`${label} ${formatCurrency(tx.amount, tx.currency)}`}
+        accessibilityLabel={`${primaryLabel} ${formatCurrency(tx.amount, tx.currency)}`}
       >
         <View style={[styles.txIcon, { backgroundColor: `${amtColor}18` }]}>
           {getTypeIcon(tx.type, amtColor)}
         </View>
         <View style={styles.txInfo}>
           <Text style={[styles.txLabel, { color: colors.textPrimary, fontFamily: 'DMSans-Medium' }]} numberOfLines={1}>
-            {label}
+            {primaryLabel}
           </Text>
-          {tx.note ? (
+          {secondaryLabel ? (
             <Text style={[styles.txNote, { color: colors.textMuted, fontFamily: 'DMSans-Regular' }]} numberOfLines={1}>
-              {tx.note}
+              {secondaryLabel}
             </Text>
           ) : null}
         </View>

@@ -1,6 +1,8 @@
 import React, { useEffect, useRef } from 'react';
-import { Animated, StyleSheet, type ViewStyle } from 'react-native';
+import { Animated, StyleSheet, Platform, type ViewStyle } from 'react-native';
 import { useTheme } from '@/shared/hooks/useTheme';
+
+const ND = Platform.OS !== 'web';
 
 interface SkeletonCardProps {
   height?: number;
@@ -16,8 +18,8 @@ export function SkeletonCard({ height = 80, width, borderRadius = 12, style }: S
   useEffect(() => {
     const loop = Animated.loop(
       Animated.sequence([
-        Animated.timing(shimmer, { toValue: 1, duration: 900, useNativeDriver: true }),
-        Animated.timing(shimmer, { toValue: 0, duration: 900, useNativeDriver: true }),
+        Animated.timing(shimmer, { toValue: 1, duration: 900, useNativeDriver: ND }),
+        Animated.timing(shimmer, { toValue: 0, duration: 900, useNativeDriver: ND }),
       ])
     );
     loop.start();

@@ -1,10 +1,13 @@
 import React, { useState, useEffect, useRef } from 'react';
 import {
-  View, Text, Modal, Pressable, StyleSheet, Animated,
+  View, Text, Modal, Pressable, StyleSheet, Animated, Platform,
   type ViewStyle,
 } from 'react-native';
+
 import { X } from 'lucide-react-native';
 import { useTheme } from '@/shared/hooks/useTheme';
+
+const ND = Platform.OS !== 'web';
 
 export interface TourStep {
   targetLayout?: { x: number; y: number; width: number; height: number };
@@ -30,7 +33,7 @@ export function GuidedHomeTour({ steps, onComplete, onSkip }: GuidedHomeTourProp
   useEffect(() => {
     Animated.spring(bubbleAnim, {
       toValue: 1,
-      useNativeDriver: true,
+      useNativeDriver: ND,
       tension: 80,
       friction: 6,
     }).start();
@@ -44,8 +47,8 @@ export function GuidedHomeTour({ steps, onComplete, onSkip }: GuidedHomeTourProp
     if (!step?.pulse) return;
     const loop = Animated.loop(
       Animated.sequence([
-        Animated.timing(pulseAnim, { toValue: 1.15, duration: 800, useNativeDriver: true }),
-        Animated.timing(pulseAnim, { toValue: 1, duration: 800, useNativeDriver: true }),
+        Animated.timing(pulseAnim, { toValue: 1.15, duration: 800, useNativeDriver: ND }),
+        Animated.timing(pulseAnim, { toValue: 1, duration: 800, useNativeDriver: ND }),
       ])
     );
     loop.start();
@@ -153,11 +156,10 @@ const styles = StyleSheet.create({
     borderRadius: 20,
     padding: 20,
     gap: 10,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.12,
-    shadowRadius: 12,
     elevation: 8,
+    ...(require('react-native').Platform.OS === 'web'
+      ? { boxShadow: '0px 4px 12px rgba(0,0,0,0.12)' }
+      : { shadowColor: '#000', shadowOffset: { width: 0, height: 4 }, shadowOpacity: 0.12, shadowRadius: 12 }),
   },
   bubbleTitle: { fontSize: 17, lineHeight: 24 },
   bubbleBody: { fontSize: 14, lineHeight: 22 },
