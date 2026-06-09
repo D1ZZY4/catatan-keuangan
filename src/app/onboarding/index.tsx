@@ -49,10 +49,10 @@ function Slide1Illustration({ c }: { c: AppColors }) {
 function Slide2Illustration({ c }: { c: AppColors }) {
   return (
     <Svg width={220} height={200} viewBox="0 0 220 200">
-      <Rect x="10" y="80" width="80" height="55" rx="12" fill="#E65100" opacity={0.15} rotation={-8} originX={10} originY={80} />
-      <Rect x="14" y="78" width="78" height="53" rx="11" fill="#E65100" opacity={0.25} rotation={-8} originX={14} originY={78} />
-      <Rect x="70" y="65" width="80" height="55" rx="12" fill="#1976D2" opacity={0.15} rotation={5} originX={70} originY={65} />
-      <Rect x="74" y="63" width="78" height="53" rx="11" fill="#1976D2" opacity={0.3} rotation={5} originX={74} originY={63} />
+      <Rect x="10" y="80" width="80" height="55" rx="12" fill="#E65100" opacity={0.15} transform="rotate(-8, 10, 80)" />
+      <Rect x="14" y="78" width="78" height="53" rx="11" fill="#E65100" opacity={0.25} transform="rotate(-8, 14, 78)" />
+      <Rect x="70" y="65" width="80" height="55" rx="12" fill="#1976D2" opacity={0.15} transform="rotate(5, 70, 65)" />
+      <Rect x="74" y="63" width="78" height="53" rx="11" fill="#1976D2" opacity={0.3} transform="rotate(5, 74, 63)" />
       <Rect x="60" y="60" width="100" height="65" rx="14" fill={c.bgSurface} />
       <Rect x="60" y="60" width="100" height="22" rx="14" fill={c.accentPrimary} />
       <Circle cx="78" cy="71" r="7" fill="white" opacity={0.5} />
