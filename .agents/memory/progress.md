@@ -57,3 +57,13 @@
 - safe-area-inset: BottomNav, FAB, AppBar, OnboardingPage, styles.css ✓
 - data-tour attributes: greeting, wallets, fab, navbar, budget, calculator ✓
 - GuidedHomeTour: confetti on completion, focus restore ✓
+
+## Verifikasi Loop (sesi terbaru)
+
+- tsc --noEmit: bersih (0 error)
+- vite build: clean (19.46s, 4593 modules, PWA 42 precache)
+- Bundle main index: 20.43 kB gzipped (batas spec 120 KB ✓)
+- vendor-iconsax: 688 KB gzipped — lazy-loaded chunk (hanya termuat bila ada nama ikon `isax:`)
+- Dev server: port 8080, preview hidup, onboarding tampil sesuai harapan
+- Tidak ada milestone tersisa; semua M0–M21 sudah ditandai selesai
+- APK: BUILD-INSTRUCTIONS.md di build-release/ (Bubblewrap butuh Android SDK lokal)
