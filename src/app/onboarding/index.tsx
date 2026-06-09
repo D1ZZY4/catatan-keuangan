@@ -702,10 +702,11 @@ const s = StyleSheet.create({
   setupScroll: {
     flexGrow: 1,
     paddingHorizontal: 24,
-    paddingTop: 24,
-    paddingBottom: 160,
+    paddingTop: 32,
+    paddingBottom: 32,
     gap: 16,
     alignItems: 'center',
+    justifyContent: 'center',
   },
   setupHeadline: { fontSize: 26, lineHeight: 34, textAlign: 'center' },
   setupField: { width: '100%', gap: 6 },
