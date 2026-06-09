@@ -19,8 +19,8 @@ export default defineConfig(({ mode }) => ({
     },
   },
   server: {
-    host: "0.0.0.0",
-    port: 5000,
+    host: "::",
+    port: 8080,
     allowedHosts: true,
     watch: {
       ignored: ["**/android/**", "**/build-release/**", "**/.git/**"],
