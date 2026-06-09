@@ -6,6 +6,7 @@ import { ChipGroup } from '@/shared/components/ChipGroup';
 import { EmptyState } from '@/shared/components/EmptyState';
 import { SkeletonCard } from '@/shared/components/SkeletonCard';
 import { ProgressBar } from '@/shared/components/ProgressBar';
+import { LocalInsights } from '@/shared/components/LocalInsights';
 import { useStatData } from '@/features/stats/useStatData';
 import { formatCurrency, formatCompact } from '@/shared/utils/formatters';
 import { BarChart3 } from 'lucide-react-native';
@@ -26,7 +27,7 @@ export default function StatistikScreen() {
   const { colors } = useTheme();
   const insets = useSafeAreaInsets();
   const [period, setPeriod] = useState<PeriodFilter>('month');
-  const { totalIncome, totalExpense, categoryExpenses, loading } = useStatData(period);
+  const { totalIncome, totalExpense, categoryExpenses, allTransactions, allCategories, loading } = useStatData(period);
 
   const netFlow = totalIncome - totalExpense;
   const savingsRate = totalIncome > 0 ? ((totalIncome - totalExpense) / totalIncome) * 100 : 0;
@@ -142,6 +143,9 @@ export default function StatistikScreen() {
           </View>
         </View>
       )}
+
+      {/* Local Insights */}
+      <LocalInsights transactions={allTransactions} categories={allCategories} />
 
       {/* Category Breakdown */}
       <Text style={[styles.sectionTitle, { color: colors.textPrimary, fontFamily: 'DMSans-SemiBold' }]}>

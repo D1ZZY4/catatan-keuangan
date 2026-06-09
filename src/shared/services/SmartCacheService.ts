@@ -25,6 +25,18 @@ class SmartCacheServiceClass {
     this.memCache.set(key, { value, ts: Date.now(), ttl: ttlMs });
   }
 
+  has(key: string): boolean {
+    return this.get(key) !== null;
+  }
+
+  delete(key: string): void {
+    this.memCache.delete(key);
+  }
+
+  clear(): void {
+    this.memCache.clear();
+  }
+
   evictStaleCache(maxAgeMs: number): void {
     for (const [key, entry] of this.memCache.entries()) {
       if (Date.now() - entry.ts > maxAgeMs) this.memCache.delete(key);
@@ -33,6 +45,14 @@ class SmartCacheServiceClass {
 
   adaptiveTTL(_key: string, baseTTL: number): number {
     return baseTTL;
+  }
+
+  async getOrFetch<T>(key: string, fetcher: () => Promise<T>, ttlMs = 300_000): Promise<T> {
+    const cached = this.get<T>(key);
+    if (cached !== null) return cached;
+    const fresh = await fetcher();
+    this.set(key, fresh, ttlMs);
+    return fresh;
   }
 
   async backgroundPreload(): Promise<void> {

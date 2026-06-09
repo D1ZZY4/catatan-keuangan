@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import {
-  View, Text, ScrollView, StyleSheet, Pressable, KeyboardAvoidingView, Platform,
+  View, Text, ScrollView, StyleSheet, Pressable, KeyboardAvoidingView, Platform, TextInput,
 } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useLocalSearchParams, useRouter } from 'expo-router';
@@ -16,8 +16,9 @@ import {
   TYPE_OPTIONS, requiresPersonFields, isExpenseType,
 } from '@/shared/constants/transactionTypes';
 import { useWalletList } from '@/features/wallets/useWalletList';
+import { useAutoCategory } from '@/shared/hooks/useAutoCategory';
 import type { TransactionType } from '@/shared/types';
-import { TextInput } from 'react-native';
+import { Sparkles } from 'lucide-react-native';
 
 export default function FormTransaksiScreen() {
   const { colors } = useTheme();
@@ -40,6 +41,8 @@ export default function FormTransaksiScreen() {
   const [loading, setLoading] = useState(false);
   const [categories, setCategories] = useState<Array<{ id: string; name: string; type: string; color: string }>>([]);
   const { wallets } = useWalletList();
+
+  const suggestedCat = useAutoCategory(note, txType, categories);
 
   useEffect(() => {
     void loadCategories();
@@ -214,6 +217,20 @@ export default function FormTransaksiScreen() {
           </View>
         )}
 
+        {/* Auto-kategori saran */}
+        {suggestedCat && !categoryId && (
+          <Pressable
+            onPress={() => setCategoryId(suggestedCat.id)}
+            style={[styles.autoSuggest, { backgroundColor: `${suggestedCat.color}18`, borderColor: suggestedCat.color }]}
+            accessibilityLabel={`Saran kategori: ${suggestedCat.name}`}
+          >
+            <Sparkles size={13} color={suggestedCat.color} />
+            <Text style={[styles.autoSuggestText, { color: suggestedCat.color, fontFamily: 'DMSans-Regular' }]}>
+              Saran: {suggestedCat.name}
+            </Text>
+          </Pressable>
+        )}
+
         {/* Kategori */}
         {filteredCategories.length > 0 && (
           <View style={styles.field}>
@@ -304,4 +321,6 @@ const styles = StyleSheet.create({
   catChip: { paddingHorizontal: 12, paddingVertical: 6, borderRadius: 20, maxWidth: '48%' },
   catLabel: { fontSize: 12, lineHeight: 18 },
   saveBtn: { marginTop: 8 },
+  autoSuggest: { flexDirection: 'row', alignItems: 'center', gap: 8, paddingHorizontal: 14, paddingVertical: 9, borderRadius: 20, borderWidth: 1, alignSelf: 'flex-start' },
+  autoSuggestText: { fontSize: 13, lineHeight: 18 },
 });

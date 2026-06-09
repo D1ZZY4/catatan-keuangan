@@ -39,6 +39,7 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
     'expo-notifications',
     ['expo-camera', { cameraPermission: 'Izinkan kamera untuk scan struk.' }],
     ['expo-secure-store'],
+    '@react-native-community/datetimepicker',
   ],
   experiments: {
     typedRoutes: true,
