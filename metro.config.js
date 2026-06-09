@@ -25,4 +25,13 @@ config.resolver.resolveRequest = (context, moduleName, platform) => {
 const defaultSourceExts = config.resolver.sourceExts ?? ['js', 'jsx', 'json', 'ts', 'tsx'];
 config.resolver.sourceExts = [...new Set([...defaultSourceExts, 'cjs', 'mjs'])];
 
+// Exclude .local directory (Replit skill temp files) from Metro file watching
+config.watchFolders = (config.watchFolders ?? []).filter(
+  f => !f.includes('/.local/')
+);
+config.resolver.blockList = [
+  ...(Array.isArray(config.resolver.blockList) ? config.resolver.blockList : []),
+  /\/.local\/.*/,
+];
+
 module.exports = config;
