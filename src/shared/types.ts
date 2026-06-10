@@ -1,0 +1,131 @@
+export type TransactionType =
+  | 'income'
+  | 'expense'
+  | 'transfer_internal'
+  | 'transfer_external'
+  | 'debt_given'
+  | 'debt_received'
+  | 'debt_repay'
+  | 'savings_deposit'
+  | 'savings_withdraw'
+  | 'invest_buy'
+  | 'invest_sell';
+
+export type WalletType =
+  | 'cash'
+  | 'bank'
+  | 'e-wallet'
+  | 'investment'
+  | 'savings'
+  | 'credit'
+  | 'crypto'
+  | 'other';
+
+export interface Wallet {
+  id: string;
+  name: string;
+  icon: string;
+  color: string;
+  currency: string;
+  initialBalance: number;
+  isArchived: boolean;
+  createdAt: number;
+  sortOrder?: number;
+  type?: WalletType;
+  showInDashboard?: boolean;
+  includeInTotal?: boolean;
+}
+
+export interface Transaction {
+  id: string;
+  type: TransactionType;
+  amount: number;
+  currency: string;
+  walletId: string;
+  toWalletId?: string;
+  categoryId: string;
+  date: number;
+  note?: string;
+  attachmentBase64?: string;
+  linkedPersonName?: string;
+  linkedPersonPhone?: string;
+  isSplitOf?: string;
+  tags?: string[];
+  createdAt: number;
+  updatedAt: number;
+}
+
+export interface Category {
+  id: string;
+  name: string;
+  icon: string;
+  color: string;
+  type: 'income' | 'expense' | 'both';
+  isDefault: boolean;
+  createdAt: number;
+}
+
+export interface Budget {
+  id: string;
+  categoryId: string;
+  amount: number;
+  currency: string;
+  period: 'monthly' | 'weekly';
+  month?: number;
+  year?: number;
+  notifyAt: number;
+  createdAt: number;
+}
+
+export interface Reminder {
+  id: string;
+  name: string;
+  amount?: number;
+  currency: string;
+  dueDay: number;
+  period: 'monthly' | 'weekly';
+  category: string;
+  notifyDaysBefore: number;
+  isActive: boolean;
+  createdAt: number;
+}
+
+export interface AppSettings {
+  userName: string;
+  baseCurrency: string;
+  autoLockSeconds: number;
+  onboardingCompleted: boolean;
+  tourCompleted: boolean;
+  darkMode: 'auto' | 'light' | 'dark';
+  darkModeSchedule?: { from: string; to: string };
+  fontSize: 'small' | 'medium' | 'large';
+  dateFormat: 'id' | 'us' | 'iso';
+  hideBalance: boolean;
+  notificationsEnabled: boolean;
+}
+
+export interface RecurringTransaction {
+  id: string;
+  name: string;
+  type: TransactionType;
+  amount: number;
+  currency: string;
+  categoryId: string;
+  walletId: string;
+  note: string;
+  frequency: 'harian' | 'mingguan' | 'bulanan';
+  nextDueDate: number;
+  isActive: boolean;
+  createdAt: number;
+}
+
+export interface TransactionTemplate {
+  id: string;
+  name: string;
+  type: TransactionType;
+  categoryId: string;
+  walletId: string;
+  amount: number;
+  note: string;
+  createdAt: number;
+}
