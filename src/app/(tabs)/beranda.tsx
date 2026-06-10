@@ -17,7 +17,7 @@ import { SecureStorage } from '@/shared/utils/secureStorage';
 import {
   TrendingUp, TrendingDown, Plus, ScanLine, ArrowLeftRight,
   Activity, ChevronDown, ChevronUp, Wallet, ChevronRight, ArrowUpDown,
-  Bell, Layers,
+  Bell, Layers, Eye, EyeOff,
 } from 'lucide-react-native';
 
 const TOUR_STEPS: TourStep[] = [
@@ -150,10 +150,12 @@ export default function BerandaScreen() {
             <Pressable
               onPress={() => setBalanceVisible(v => !v)}
               style={[styles.visibilityBtn, { backgroundColor: `${colors.bgSurface}CC`, borderColor: 'rgba(0,0,0,0.06)' }]}
+              accessibilityLabel={balanceVisible ? 'Sembunyikan saldo' : 'Tampilkan saldo'}
             >
-              <Text style={[styles.visibilityText, { color: colors.textMuted, fontFamily: 'DMSans-SemiBold' }]}>
-                {balanceVisible ? 'Sembunyikan' : 'Tampilkan'}
-              </Text>
+              {balanceVisible
+                ? <EyeOff size={16} color={colors.textMuted} strokeWidth={1.8} />
+                : <Eye size={16} color={colors.textMuted} strokeWidth={1.8} />
+              }
             </Pressable>
           </View>
 
@@ -473,8 +475,7 @@ const styles = StyleSheet.create({
   greetingRow: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 16 },
   greetingName: { fontSize: 15, lineHeight: 22 },
   greetingSub: { fontSize: 11, lineHeight: 16 },
-  visibilityBtn: { paddingHorizontal: 10, paddingVertical: 5, borderRadius: 999, borderWidth: 1 },
-  visibilityText: { fontSize: 10, lineHeight: 16 },
+  visibilityBtn: { width: 32, height: 32, borderRadius: 999, borderWidth: 1, alignItems: 'center', justifyContent: 'center' },
   netWorthLabel: { fontSize: 10, letterSpacing: 2, marginBottom: 4 },
   netWorth: { fontSize: 38, lineHeight: 46, marginBottom: 16 },
   miniRow: { flexDirection: 'row', gap: 12 },

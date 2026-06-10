@@ -1,5 +1,5 @@
 import { Tabs } from 'expo-router';
-import { StyleSheet, View, Pressable, Text } from 'react-native';
+import { StyleSheet, View, Pressable, Text, Platform } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Home, ArrowUpDown, BarChart3, Wallet, Settings } from 'lucide-react-native';
 import { useTheme } from '@/shared/hooks/useTheme';
@@ -32,9 +32,23 @@ function CustomTabBar({ state, navigation }: TabBarProps) {
         style={[
           styles.pill,
           {
-            backgroundColor: `${colors.bgCard}E8`,
+            backgroundColor: colors.bgCard,
+            borderColor: 'rgba(255,255,255,0.35)',
+            ...(Platform.OS === 'web'
+              ? {
+                  backdropFilter: 'blur(20px)',
+                  WebkitBackdropFilter: 'blur(20px)',
+                  boxShadow: '0px 8px 32px rgba(0,0,0,0.18)',
+                  backgroundColor: `${colors.bgCard}D9`,
+                } as object
+              : {
+                  shadowColor: '#000',
+                  shadowOffset: { width: 0, height: 8 },
+                  shadowOpacity: 0.18,
+                  shadowRadius: 32,
+                  elevation: 12,
+                }),
           },
-          shadows.float,
         ]}
       >
         {state.routes.map((route, index) => {
@@ -118,6 +132,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 6,
     width: '100%',
     maxWidth: 480,
+    borderWidth: 1,
   },
   tabItem: {
     flex: 1,
