@@ -101,6 +101,20 @@
 - TypeScript: 0 error setelah semua fix ✓
 - Browser console: bersih, tidak ada shadow* warning ✓
 
+## Audit Sesi Ini (Batch 6 — Icon system + form rebuild)
+
+- [x] IconPicker.tsx — rebuilt sebagai inline 3-tab (Lucide|Iconsax|Merek), 6-col grid, search, brand category chips — match old-code persis
+- [x] DynamicIcon.tsx — string-based icon router (plain=Lucide, isax:=Iconsax, fab:=FontAwesome brand)
+- [x] BrandIcons.ts — RN brand icons list (FontAwesomeIcon wrapper)
+- [x] isaxIcons.ts — curated 78 iconsax icons map (Laptop dihapus, Diamonds bukan Diamond)
+- [x] lucideIcons.ts — expanded ~130 icons dari old-code list (TreePine bukan Tree)
+- [x] form-dompet.tsx + form-kategori.tsx — rebuilt 3-tab (Dasar|Ikon|Warna) match old-code WalletForm/CategoryForm
+- [x] form-kategori.tsx — live preview card dengan DynamicIcon + name placeholder
+- [x] WalletCard.tsx — migrated ke DynamicIcon (dari getLucideIcon)
+- [x] form-transaksi.tsx — migrated ke DynamicIcon untuk wallet/category chips
+- [x] CategoryType — tambah 'both' ke union type
+- [x] TypeScript: 0 error setelah semua fix ✓
+
 ## Audit Sesi Ini (Batch 5 — dead code cleanup)
 
 - [x] StatCharts.tsx dihapus (tidak diimport di mana pun; statistik.tsx pakai inline chart sendiri)

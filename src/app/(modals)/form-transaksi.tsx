@@ -19,7 +19,7 @@ import { useWalletList } from '@/features/wallets/useWalletList';
 import { useAutoCategory } from '@/shared/hooks/useAutoCategory';
 import type { TransactionType } from '@/shared/types';
 import { Sparkles } from 'lucide-react-native';
-import { getLucideIcon } from '@/shared/utils/lucideIcons';
+import { DynamicIcon } from '@/shared/components/DynamicIcon';
 
 export default function FormTransaksiScreen() {
   const { colors } = useTheme();
@@ -174,7 +174,6 @@ export default function FormTransaksiScreen() {
           <ScrollView horizontal showsHorizontalScrollIndicator={false}>
             <View style={styles.chipRow}>
               {wallets.filter(w => !w.isArchived).map(w => {
-                const WIcon = getLucideIcon(w.icon ?? '');
                 const active = walletId === w.id;
                 return (
                   <Pressable
@@ -186,7 +185,7 @@ export default function FormTransaksiScreen() {
                     ]}
                     accessibilityLabel={`Pilih dompet ${w.name}`}
                   >
-                    <WIcon size={13} color={active ? colors.white : w.color} strokeWidth={2} />
+                    <DynamicIcon name={w.icon ?? 'Wallet'} size={13} color={active ? colors.white : w.color} />
                     <Text style={[styles.chipLabel, { color: active ? colors.white : colors.textMuted, fontFamily: 'DMSans-Medium' }]}>
                       {w.name}
                     </Text>
@@ -204,7 +203,6 @@ export default function FormTransaksiScreen() {
             <ScrollView horizontal showsHorizontalScrollIndicator={false}>
               <View style={styles.chipRow}>
                 {wallets.filter(w => !w.isArchived && w.id !== walletId).map(w => {
-                  const WIcon = getLucideIcon(w.icon ?? '');
                   const active = toWalletId === w.id;
                   return (
                     <Pressable
@@ -216,7 +214,7 @@ export default function FormTransaksiScreen() {
                       ]}
                       accessibilityLabel={`Pilih dompet tujuan ${w.name}`}
                     >
-                      <WIcon size={13} color={active ? colors.white : w.color} strokeWidth={2} />
+                      <DynamicIcon name={w.icon ?? 'Wallet'} size={13} color={active ? colors.white : w.color} />
                       <Text style={[styles.chipLabel, { color: active ? colors.white : colors.textMuted, fontFamily: 'DMSans-Medium' }]}>
                         {w.name}
                       </Text>
@@ -248,7 +246,6 @@ export default function FormTransaksiScreen() {
             <Text style={[styles.label, { color: colors.textMuted, fontFamily: 'DMSans-Medium' }]}>Kategori</Text>
             <View style={styles.catGrid}>
               {filteredCategories.map(cat => {
-                const CIcon = getLucideIcon(cat.icon);
                 const active = categoryId === cat.id;
                 return (
                   <Pressable
@@ -264,7 +261,7 @@ export default function FormTransaksiScreen() {
                     ]}
                     accessibilityLabel={`Pilih kategori ${cat.name}`}
                   >
-                    <CIcon size={12} color={active ? cat.color : colors.textMuted} strokeWidth={2} />
+                    <DynamicIcon name={cat.icon} size={12} color={active ? cat.color : colors.textMuted} />
                     <Text style={[styles.catLabel, { color: active ? cat.color : colors.textMuted, fontFamily: active ? 'DMSans-Medium' : 'DMSans-Regular' }]} numberOfLines={1}>
                       {cat.name}
                     </Text>

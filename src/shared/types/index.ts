@@ -25,7 +25,7 @@ export type BudgetPeriod = 'bulanan' | 'mingguan';
 
 export type ReminderPeriod = 'bulanan' | 'mingguan';
 
-export type CategoryType = 'expense' | 'income';
+export type CategoryType = 'expense' | 'income' | 'both';
 
 export interface Wallet {
   id: string;

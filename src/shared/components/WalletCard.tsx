@@ -2,7 +2,7 @@ import React, { memo } from 'react';
 import { View, Text, Pressable, StyleSheet } from 'react-native';
 import { useTheme } from '@/shared/hooks/useTheme';
 import { formatCurrency } from '@/shared/utils/formatters';
-import { getLucideIcon } from '@/shared/utils/lucideIcons';
+import { DynamicIcon } from '@/shared/components/DynamicIcon';
 
 interface WalletCardProps {
   wallet: { id: string; name: string; icon?: string; color: string; currency: string; type: string; balance: number };
@@ -12,7 +12,6 @@ interface WalletCardProps {
 export const WalletCard = memo(function WalletCard({ wallet, onPress }: WalletCardProps) {
   const { colors, shadows } = useTheme();
   const accentColor = wallet.color || colors.accentPrimary;
-  const IconComp = getLucideIcon(wallet.icon ?? '');
 
   return (
     <Pressable
@@ -30,7 +29,7 @@ export const WalletCard = memo(function WalletCard({ wallet, onPress }: WalletCa
         {/* Header row: icon badge + currency badge */}
         <View style={styles.header}>
           <View style={[styles.iconBadge, { backgroundColor: `${accentColor}22` }]}>
-            <IconComp size={18} color={accentColor} strokeWidth={1.8} />
+            <DynamicIcon name={wallet.icon ?? 'Wallet'} size={18} color={accentColor} />
           </View>
           <View style={[styles.currencyBadge, { backgroundColor: colors.bgPage }]}>
             <Text style={[styles.currencyBadgeText, { color: colors.textMuted, fontFamily: 'DMSans-SemiBold' }]}>

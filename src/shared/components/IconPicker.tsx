@@ -1,235 +1,326 @@
-import React, { useState, useMemo, useCallback, memo } from 'react';
+import React, { useState, useMemo, memo } from 'react';
 import {
-  View, Text, TextInput, FlatList, Pressable, StyleSheet, Modal,
+  View, Text, TextInput, ScrollView, Pressable, StyleSheet,
 } from 'react-native';
-import { Search, Check, X } from 'lucide-react-native';
+import { Search } from 'lucide-react-native';
+import { FontAwesomeIcon } from '@fortawesome/react-native-fontawesome';
 import { useTheme } from '@/shared/hooks/useTheme';
 import { getLucideIcon, ALL_LUCIDE_ICON_NAMES } from '@/shared/utils/lucideIcons';
+import { getIsaxIcon, CURATED_ISAX_ICONS } from '@/shared/utils/isaxIcons';
+import { BRAND_ICONS, BRAND_CATEGORIES } from '@/shared/components/BrandIcons';
 
-const NUM_COLUMNS = 5;
+type Tab = 'lucide' | 'iconsax' | 'merek';
+
+const NUM_COLS = 6;
 
 interface IconPickerProps {
   value: string;
-  color: string;
-  onSelect: (iconName: string) => void;
+  onChange: (icon: string) => void;
+  color?: string;
 }
 
-interface IconItemProps {
-  name: string;
+interface GridCellProps {
   isSelected: boolean;
   color: string;
   onPress: () => void;
+  accessLabel: string;
   bgCard: string;
-  textMuted: string;
+  accentPrimary: string;
+  children: React.ReactNode;
 }
 
-const IconItem = memo(function IconItem({
-  name, isSelected, color, onPress, bgCard, textMuted,
-}: IconItemProps) {
-  const IconComp = getLucideIcon(name);
+const GridCell = memo(function GridCell({
+  isSelected, color, onPress, accessLabel, bgCard, accentPrimary, children,
+}: GridCellProps) {
   return (
     <Pressable
       onPress={onPress}
-      style={({ pressed }) => [
-        styles.iconItem,
-        { backgroundColor: isSelected ? `${color}22` : bgCard },
-        isSelected && { borderColor: color, borderWidth: 1.5 },
-        pressed && { opacity: 0.7 },
-      ]}
-      accessibilityLabel={`Pilih ikon ${name}`}
+      accessibilityLabel={accessLabel}
       accessibilityRole="button"
+      style={({ pressed }) => [
+        styles.cell,
+        { backgroundColor: isSelected ? `${color}22` : bgCard },
+        isSelected && { borderColor: accentPrimary, borderWidth: 1.5 },
+        pressed && { opacity: 0.6 },
+      ]}
     >
-      <IconComp size={22} color={isSelected ? color : textMuted} strokeWidth={1.8} />
-      {isSelected && (
-        <View style={[styles.checkBadge, { backgroundColor: color }]}>
-          <Check size={8} color="#fff" strokeWidth={3} />
-        </View>
-      )}
+      {children}
     </Pressable>
   );
 });
 
-export function IconPicker({ value, color, onSelect }: IconPickerProps) {
+export function IconPicker({ value, onChange, color = '#8CC0EB' }: IconPickerProps) {
   const { colors } = useTheme();
-  const [visible, setVisible] = useState(false);
-  const [search, setSearch] = useState('');
 
-  const filtered = useMemo(() => {
+  const [tab, setTab] = useState<Tab>(() => {
+    if (value.startsWith('fab:')) return 'merek';
+    if (value.startsWith('isax:')) return 'iconsax';
+    return 'lucide';
+  });
+  const [search, setSearch] = useState('');
+  const [brandCat, setBrandCat] = useState('Semua');
+
+  const filteredLucide = useMemo(() => {
     if (!search.trim()) return ALL_LUCIDE_ICON_NAMES;
     const q = search.toLowerCase();
     return ALL_LUCIDE_ICON_NAMES.filter(n => n.toLowerCase().includes(q));
   }, [search]);
 
-  const handleSelect = useCallback((name: string) => {
-    onSelect(name);
-    setVisible(false);
-    setSearch('');
-  }, [onSelect]);
+  const filteredIsax = useMemo(() => {
+    if (!search.trim()) return CURATED_ISAX_ICONS;
+    const q = search.toLowerCase();
+    return CURATED_ISAX_ICONS.filter(n => n.toLowerCase().includes(q));
+  }, [search]);
 
-  const SelectedIcon = getLucideIcon(value);
+  const filteredBrands = useMemo(() => {
+    const byCat = brandCat === 'Semua' ? BRAND_ICONS : BRAND_ICONS.filter(b => b.category === brandCat);
+    if (!search.trim()) return byCat;
+    const q = search.toLowerCase();
+    return byCat.filter(b => b.label.toLowerCase().includes(q) || b.key.includes(q));
+  }, [search, brandCat]);
+
+  const TABS: { id: Tab; label: string }[] = [
+    { id: 'lucide', label: 'Lucide' },
+    { id: 'iconsax', label: 'Iconsax' },
+    { id: 'merek', label: 'Merek' },
+  ];
+
+  const accentColor = colors.accentPrimary ?? '#8CC0EB';
 
   return (
-    <>
-      <Pressable
-        onPress={() => setVisible(true)}
-        style={({ pressed }) => [
-          styles.trigger,
-          { backgroundColor: colors.bgCard, borderColor: colors.border },
-          pressed && { opacity: 0.8 },
-        ]}
-        accessibilityLabel="Pilih ikon"
-        accessibilityRole="button"
-      >
-        <View style={[styles.triggerIconWrap, { backgroundColor: `${color}22` }]}>
-          <SelectedIcon size={22} color={color} strokeWidth={1.8} />
-        </View>
-        <Text style={[styles.triggerLabel, { color: colors.textPrimary, fontFamily: 'DMSans-Medium' }]}>
-          {value || 'Pilih Ikon'}
-        </Text>
-        <Text style={[styles.triggerHint, { color: colors.textMuted, fontFamily: 'DMSans-Regular' }]}>
-          Ketuk untuk ganti
-        </Text>
-      </Pressable>
-
-      <Modal
-        visible={visible}
-        animationType="slide"
-        presentationStyle="pageSheet"
-        onRequestClose={() => { setVisible(false); setSearch(''); }}
-      >
-        <View style={[styles.sheet, { backgroundColor: colors.bgPage }]}>
-          {/* Header */}
-          <View style={[styles.sheetHeader, { borderBottomColor: colors.border }]}>
-            <Text style={[styles.sheetTitle, { color: colors.textPrimary, fontFamily: 'DMSans-SemiBold' }]}>
-              Pilih Ikon
+    <View style={styles.root}>
+      {/* Sub-tab pills */}
+      <View style={[styles.tabBar, { backgroundColor: colors.bgInput }]}>
+        {TABS.map(t => (
+          <Pressable
+            key={t.id}
+            onPress={() => setTab(t.id)}
+            style={[
+              styles.tabBtn,
+              tab === t.id && { backgroundColor: colors.bgCard },
+            ]}
+            accessibilityLabel={`Tab ${t.label}`}
+            accessibilityRole="tab"
+          >
+            <Text style={[
+              styles.tabLabel,
+              { color: tab === t.id ? colors.textPrimary : colors.textMuted, fontFamily: 'DMSans-SemiBold' },
+            ]}>
+              {t.label}
             </Text>
+          </Pressable>
+        ))}
+      </View>
+
+      {/* Search */}
+      <View style={[styles.searchRow, { backgroundColor: colors.bgCard }]}>
+        <Search size={15} color={colors.textMuted} />
+        <TextInput
+          value={search}
+          onChangeText={setSearch}
+          placeholder="Cari ikon…"
+          placeholderTextColor={colors.textPlaceholder}
+          style={[styles.searchInput, { color: colors.textPrimary, fontFamily: 'DMSans-Regular' }]}
+          autoCorrect={false}
+          autoCapitalize="none"
+          accessibilityLabel="Cari ikon"
+          returnKeyType="search"
+        />
+      </View>
+
+      {/* Brand category chips */}
+      {tab === 'merek' && (
+        <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.chipScroll} contentContainerStyle={styles.chipContent}>
+          {['Semua', ...BRAND_CATEGORIES].map(cat => (
             <Pressable
-              onPress={() => { setVisible(false); setSearch(''); }}
-              style={[styles.closeBtn, { backgroundColor: colors.bgCard }]}
-              accessibilityLabel="Tutup pemilih ikon"
+              key={cat}
+              onPress={() => setBrandCat(cat)}
+              style={[
+                styles.chip,
+                { backgroundColor: brandCat === cat ? accentColor : colors.bgCard },
+              ]}
+              accessibilityLabel={`Filter ${cat}`}
               accessibilityRole="button"
             >
-              <X size={18} color={colors.textMuted} />
+              <Text style={[
+                styles.chipLabel,
+                { color: brandCat === cat ? '#fff' : colors.textMuted, fontFamily: 'DMSans-SemiBold' },
+              ]}>
+                {cat}
+              </Text>
             </Pressable>
-          </View>
+          ))}
+        </ScrollView>
+      )}
 
-          {/* Search */}
-          <View style={[styles.searchWrap, { backgroundColor: colors.bgCard, borderColor: colors.border }]}>
-            <Search size={16} color={colors.textMuted} />
-            <TextInput
-              value={search}
-              onChangeText={setSearch}
-              placeholder="Cari ikon..."
-              placeholderTextColor={colors.textPlaceholder}
-              style={[styles.searchInput, { color: colors.textPrimary, fontFamily: 'DMSans-Regular' }]}
-              autoCorrect={false}
-              autoCapitalize="none"
-              accessibilityLabel="Cari ikon"
-            />
-          </View>
-
-          {/* Grid */}
-          <FlatList
-            data={filtered}
-            numColumns={NUM_COLUMNS}
-            keyExtractor={item => item}
-            contentContainerStyle={styles.grid}
-            renderItem={({ item }) => (
-              <IconItem
-                name={item}
-                isSelected={item === value}
-                color={color}
-                onPress={() => handleSelect(item)}
-                bgCard={colors.bgCard}
-                textMuted={colors.textMuted}
-              />
+      {/* Grids */}
+      <ScrollView
+        style={styles.grid}
+        showsVerticalScrollIndicator={false}
+        keyboardShouldPersistTaps="handled"
+        nestedScrollEnabled
+      >
+        {/* Lucide grid */}
+        {tab === 'lucide' && (
+          <View style={styles.gridWrap}>
+            {filteredLucide.map(name => {
+              const LucideComp = getLucideIcon(name);
+              const selected = value === name;
+              return (
+                <GridCell
+                  key={name}
+                  isSelected={selected}
+                  color={color}
+                  onPress={() => onChange(name)}
+                  accessLabel={`Pilih ikon ${name}`}
+                  bgCard={colors.bgCard}
+                  accentPrimary={accentColor}
+                >
+                  <LucideComp size={20} color={selected ? color : colors.textMuted} strokeWidth={1.8} />
+                </GridCell>
+              );
+            })}
+            {filteredLucide.length === 0 && (
+              <Text style={[styles.emptyText, { color: colors.textMuted, fontFamily: 'DMSans-Regular' }]}>
+                Ikon tidak ditemukan
+              </Text>
             )}
-            windowSize={5}
-            maxToRenderPerBatch={25}
-            initialNumToRender={25}
-            ListEmptyComponent={
-              <View style={styles.empty}>
-                <Text style={[styles.emptyText, { color: colors.textMuted, fontFamily: 'DMSans-Regular' }]}>
-                  Tidak ada ikon ditemukan
-                </Text>
-              </View>
-            }
-          />
-        </View>
-      </Modal>
-    </>
+          </View>
+        )}
+
+        {/* Iconsax grid */}
+        {tab === 'iconsax' && (
+          <View style={styles.gridWrap}>
+            {filteredIsax.map(name => {
+              const fullName = `isax:${name}`;
+              const selected = value === fullName;
+              const IsaxComp = getIsaxIcon(name);
+              return (
+                <GridCell
+                  key={name}
+                  isSelected={selected}
+                  color={color}
+                  onPress={() => onChange(fullName)}
+                  accessLabel={`Pilih ikon ${name}`}
+                  bgCard={colors.bgCard}
+                  accentPrimary={accentColor}
+                >
+                  {IsaxComp ? (
+                    <IsaxComp size={20} color={selected ? color : colors.textMuted} variant="Linear" />
+                  ) : null}
+                </GridCell>
+              );
+            })}
+            {filteredIsax.length === 0 && (
+              <Text style={[styles.emptyText, { color: colors.textMuted, fontFamily: 'DMSans-Regular' }]}>
+                Ikon tidak ditemukan
+              </Text>
+            )}
+          </View>
+        )}
+
+        {/* Brand grid */}
+        {tab === 'merek' && (
+          <View style={styles.gridWrap}>
+            {filteredBrands.map(entry => {
+              const fullName = `fab:${entry.key}`;
+              const selected = value === fullName;
+              const iconColor = selected ? color : colors.textMuted;
+              return (
+                <GridCell
+                  key={entry.key}
+                  isSelected={selected}
+                  color={color}
+                  onPress={() => onChange(fullName)}
+                  accessLabel={`Pilih ikon ${entry.label}`}
+                  bgCard={colors.bgCard}
+                  accentPrimary={accentColor}
+                >
+                  {entry.iconType === 'fa' ? (
+                    <FontAwesomeIcon icon={entry.icon} size={20} color={iconColor} />
+                  ) : (
+                    (() => {
+                      const LucideComp = getLucideIcon(entry.lucideName);
+                      return <LucideComp size={20} color={iconColor} strokeWidth={1.8} />;
+                    })()
+                  )}
+                </GridCell>
+              );
+            })}
+            {filteredBrands.length === 0 && (
+              <Text style={[styles.emptyText, { color: colors.textMuted, fontFamily: 'DMSans-Regular' }]}>
+                Ikon tidak ditemukan
+              </Text>
+            )}
+          </View>
+        )}
+
+        {/* Footer hint */}
+        <Text style={[styles.hint, { color: colors.textMuted, fontFamily: 'DMSans-Regular' }]}>
+          {tab === 'lucide' && 'Lucide — ikon antarmuka umum'}
+          {tab === 'iconsax' && 'Iconsax — ikon premium'}
+          {tab === 'merek' && `Merek — ${BRAND_ICONS.length} platform populer`}
+        </Text>
+      </ScrollView>
+    </View>
   );
 }
 
 const styles = StyleSheet.create({
-  trigger: {
+  root: { gap: 10 },
+  tabBar: {
     flexDirection: 'row',
-    alignItems: 'center',
-    gap: 12,
-    paddingHorizontal: 14,
-    paddingVertical: 12,
     borderRadius: 12,
-    borderWidth: 1,
+    padding: 3,
   },
-  triggerIconWrap: {
-    width: 40,
-    height: 40,
-    borderRadius: 12,
+  tabBtn: {
+    flex: 1,
+    paddingVertical: 7,
+    borderRadius: 9,
     alignItems: 'center',
-    justifyContent: 'center',
   },
-  triggerLabel: { fontSize: 15, flex: 1 },
-  triggerHint: { fontSize: 12 },
-  sheet: { flex: 1 },
-  sheetHeader: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    paddingHorizontal: 16,
-    paddingVertical: 16,
-    borderBottomWidth: StyleSheet.hairlineWidth,
-  },
-  sheetTitle: { fontSize: 17 },
-  closeBtn: {
-    width: 32,
-    height: 32,
-    borderRadius: 16,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  searchWrap: {
+  tabLabel: { fontSize: 12 },
+  searchRow: {
     flexDirection: 'row',
     alignItems: 'center',
     gap: 8,
-    margin: 16,
     paddingHorizontal: 12,
-    paddingVertical: 10,
-    borderRadius: 10,
-    borderWidth: 1,
-  },
-  searchInput: { flex: 1, fontSize: 15, height: 24 },
-  grid: { paddingHorizontal: 12, paddingBottom: 40 },
-  iconItem: {
-    flex: 1,
-    margin: 4,
-    aspectRatio: 1,
+    paddingVertical: 9,
     borderRadius: 12,
+  },
+  searchInput: { flex: 1, fontSize: 14, height: 20 },
+  chipScroll: { flexGrow: 0 },
+  chipContent: { gap: 6, paddingRight: 4 },
+  chip: {
+    paddingHorizontal: 10,
+    paddingVertical: 5,
+    borderRadius: 20,
+  },
+  chipLabel: { fontSize: 10 },
+  grid: { maxHeight: 260 },
+  gridWrap: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    gap: 4,
+  },
+  cell: {
+    width: `${100 / NUM_COLS - 1}%` as unknown as number,
+    aspectRatio: 1,
+    borderRadius: 10,
     alignItems: 'center',
     justifyContent: 'center',
-    minHeight: 52,
-    position: 'relative',
     borderWidth: 0,
   },
-  checkBadge: {
-    position: 'absolute',
-    top: 4,
-    right: 4,
-    width: 14,
-    height: 14,
-    borderRadius: 7,
-    alignItems: 'center',
-    justifyContent: 'center',
+  emptyText: {
+    fontSize: 13,
+    textAlign: 'center',
+    paddingVertical: 20,
+    width: '100%',
   },
-  empty: { flex: 1, alignItems: 'center', paddingTop: 40 },
-  emptyText: { fontSize: 14 },
+  hint: {
+    fontSize: 10,
+    textAlign: 'center',
+    paddingTop: 8,
+    paddingBottom: 4,
+  },
 });

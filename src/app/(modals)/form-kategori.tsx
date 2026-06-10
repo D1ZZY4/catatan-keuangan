@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import {
-  View, Text, TextInput, ScrollView, StyleSheet,
+  View, Text, TextInput, ScrollView, StyleSheet, Pressable,
 } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useLocalSearchParams, useRouter } from 'expo-router';
@@ -8,16 +8,18 @@ import { useTheme } from '@/shared/hooks/useTheme';
 import { AppBar } from '@/shared/components/AppBar';
 import { Button } from '@/shared/components/Button';
 import { ColorPicker } from '@/shared/components/ColorPicker';
-import { ChipGroup } from '@/shared/components/ChipGroup';
 import { IconPicker } from '@/shared/components/IconPicker';
+import { DynamicIcon } from '@/shared/components/DynamicIcon';
 import { useToast } from '@/shared/components/Toast';
-import { getLucideIcon } from '@/shared/utils/lucideIcons';
 import { database } from '@/shared/db';
 import type { CategoryType } from '@/shared/types';
 
-const TYPE_OPTIONS = [
-  { value: 'expense' as CategoryType, label: 'Pengeluaran' },
-  { value: 'income' as CategoryType, label: 'Pemasukan' },
+type FormTab = 'dasar' | 'ikon' | 'warna';
+
+const TYPE_OPTIONS: { value: CategoryType; label: string }[] = [
+  { value: 'expense', label: 'Pengeluaran' },
+  { value: 'income', label: 'Pemasukan' },
+  { value: 'both', label: 'Keduanya' },
 ];
 
 export default function FormKategoriScreen() {
@@ -28,6 +30,7 @@ export default function FormKategoriScreen() {
   const params = useLocalSearchParams<{ id?: string; type?: string }>();
   const isEdit = !!params.id;
 
+  const [activeTab, setActiveTab] = useState<FormTab>('dasar');
   const [name, setName] = useState('');
   const [type, setType] = useState<CategoryType>((params.type as CategoryType) ?? 'expense');
   const [color, setColor] = useState('#4CAF50');
@@ -36,9 +39,7 @@ export default function FormKategoriScreen() {
   const [initialLoading, setInitialLoading] = useState(isEdit);
 
   useEffect(() => {
-    if (isEdit && params.id) {
-      void loadExisting(params.id);
-    }
+    if (isEdit && params.id) void loadExisting(params.id);
   }, []);
 
   async function loadExisting(id: string) {
@@ -57,10 +58,7 @@ export default function FormKategoriScreen() {
   }
 
   async function handleSave() {
-    if (!name.trim()) {
-      showToast('Nama kategori tidak boleh kosong', 'error');
-      return;
-    }
+    if (!name.trim()) { showToast('Nama kategori tidak boleh kosong', 'error'); return; }
     setLoading(true);
     try {
       await database.write(async () => {
@@ -93,55 +91,111 @@ export default function FormKategoriScreen() {
 
   if (initialLoading) return null;
 
-  const IconComp = getLucideIcon(icon);
+  const accentColor = colors.accentPrimary ?? '#8CC0EB';
+  const TABS: { id: FormTab; label: string }[] = [
+    { id: 'dasar', label: 'Dasar' },
+    { id: 'ikon', label: 'Ikon' },
+    { id: 'warna', label: 'Warna' },
+  ];
 
   return (
     <View style={[styles.container, { backgroundColor: colors.bgPage }]}>
-      <AppBar title={isEdit ? 'Edit Kategori' : 'Kategori Baru'} showBack />
+      <AppBar title={isEdit ? 'Edit Kategori' : 'Tambah Kategori'} showBack />
+
+      {/* Form tabs */}
+      <View style={[styles.tabRow, { borderBottomColor: colors.border }]}>
+        {TABS.map(t => (
+          <Pressable
+            key={t.id}
+            onPress={() => setActiveTab(t.id)}
+            style={[
+              styles.tab,
+              activeTab === t.id && { borderBottomColor: accentColor, borderBottomWidth: 2 },
+            ]}
+            accessibilityLabel={`Tab ${t.label}`}
+            accessibilityRole="tab"
+          >
+            <Text style={[
+              styles.tabLabel,
+              {
+                color: activeTab === t.id ? accentColor : colors.textMuted,
+                fontFamily: 'DMSans-Medium',
+              },
+            ]}>
+              {t.label}
+            </Text>
+          </Pressable>
+        ))}
+      </View>
+
       <ScrollView
         contentContainerStyle={[styles.content, { paddingBottom: insets.bottom + 32 }]}
         showsVerticalScrollIndicator={false}
         keyboardShouldPersistTaps="handled"
       >
-        <View style={styles.field}>
-          <Text style={[styles.label, { color: colors.textMuted, fontFamily: 'DMSans-Medium' }]}>Nama Kategori</Text>
-          <TextInput
-            value={name}
-            onChangeText={setName}
-            placeholder="cth. Makan, Transportasi, Gaji..."
-            placeholderTextColor={colors.textPlaceholder}
-            style={[styles.input, { color: colors.textPrimary, backgroundColor: colors.bgInput, fontFamily: 'DMSans-Regular' }]}
-            maxLength={40}
-            autoFocus
-            accessibilityLabel="Nama kategori"
-          />
-        </View>
+        {/* ──── Dasar tab ──── */}
+        {activeTab === 'dasar' && (
+          <>
+            {/* Preview */}
+            <View style={[styles.preview, { backgroundColor: colors.bgCard }]}>
+              <View style={[styles.previewIcon, { backgroundColor: `${color}22` }]}>
+                <DynamicIcon name={icon} size={22} color={color} />
+              </View>
+              <Text style={[styles.previewName, { color: colors.textPrimary, fontFamily: 'DMSans-SemiBold' }]}>
+                {name || 'Nama Kategori'}
+              </Text>
+            </View>
 
-        <View style={styles.field}>
-          <Text style={[styles.label, { color: colors.textMuted, fontFamily: 'DMSans-Medium' }]}>Tipe Kategori</Text>
-          <ChipGroup options={TYPE_OPTIONS} value={type} onChange={setType} />
-        </View>
+            <View style={styles.field}>
+              <Text style={[styles.label, { color: colors.textMuted, fontFamily: 'DMSans-Medium' }]}>Nama Kategori</Text>
+              <TextInput
+                value={name}
+                onChangeText={setName}
+                placeholder="cth. Makan, Transportasi, Gaji…"
+                placeholderTextColor={colors.textPlaceholder}
+                style={[styles.input, { color: colors.textPrimary, backgroundColor: colors.bgInput, fontFamily: 'DMSans-Regular' }]}
+                maxLength={40}
+                autoFocus
+                accessibilityLabel="Nama kategori"
+              />
+            </View>
 
-        {/* Ikon */}
-        <View style={styles.field}>
-          <Text style={[styles.label, { color: colors.textMuted, fontFamily: 'DMSans-Medium' }]}>Ikon</Text>
-          <IconPicker value={icon} color={color} onSelect={setIcon} />
-        </View>
+            <View style={styles.field}>
+              <Text style={[styles.label, { color: colors.textMuted, fontFamily: 'DMSans-Medium' }]}>Jenis</Text>
+              <View style={styles.typeRow}>
+                {TYPE_OPTIONS.map(opt => (
+                  <Pressable
+                    key={opt.value}
+                    onPress={() => setType(opt.value)}
+                    style={[
+                      styles.typeChip,
+                      { backgroundColor: type === opt.value ? accentColor : colors.bgCard },
+                    ]}
+                    accessibilityLabel={`Jenis ${opt.label}`}
+                    accessibilityRole="button"
+                  >
+                    <Text style={[
+                      styles.typeChipLabel,
+                      { color: type === opt.value ? '#fff' : colors.textMuted, fontFamily: 'DMSans-Medium' },
+                    ]}>
+                      {opt.label}
+                    </Text>
+                  </Pressable>
+                ))}
+              </View>
+            </View>
+          </>
+        )}
 
-        <View style={styles.field}>
-          <Text style={[styles.label, { color: colors.textMuted, fontFamily: 'DMSans-Medium' }]}>Warna</Text>
+        {/* ──── Ikon tab ──── */}
+        {activeTab === 'ikon' && (
+          <IconPicker value={icon} onChange={setIcon} color={color} />
+        )}
+
+        {/* ──── Warna tab ──── */}
+        {activeTab === 'warna' && (
           <ColorPicker value={color} onChange={setColor} />
-        </View>
-
-        {/* Preview */}
-        <View style={styles.preview}>
-          <View style={[styles.previewIcon, { backgroundColor: `${color}22` }]}>
-            <IconComp size={22} color={color} strokeWidth={1.8} />
-          </View>
-          <Text style={[styles.previewName, { color: colors.textPrimary, fontFamily: 'DMSans-SemiBold' }]}>
-            {name || 'Nama Kategori'}
-          </Text>
-        </View>
+        )}
 
         <Button
           label={isEdit ? 'Simpan Perubahan' : 'Buat Kategori'}
@@ -149,6 +203,7 @@ export default function FormKategoriScreen() {
           loading={loading}
           disabled={!name.trim() || loading}
           fullWidth
+          style={styles.saveBtn}
         />
       </ScrollView>
     </View>
@@ -157,6 +212,17 @@ export default function FormKategoriScreen() {
 
 const styles = StyleSheet.create({
   container: { flex: 1 },
+  tabRow: {
+    flexDirection: 'row',
+    borderBottomWidth: StyleSheet.hairlineWidth,
+  },
+  tab: {
+    flex: 1,
+    paddingVertical: 12,
+    alignItems: 'center',
+    borderBottomWidth: 0,
+  },
+  tabLabel: { fontSize: 14 },
   content: { padding: 16, gap: 20 },
   field: { gap: 8 },
   label: { fontSize: 13, lineHeight: 18 },
@@ -165,9 +231,20 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     gap: 12,
-    paddingVertical: 8,
-    paddingHorizontal: 4,
+    padding: 14,
+    borderRadius: 14,
   },
   previewIcon: { width: 44, height: 44, borderRadius: 22, alignItems: 'center', justifyContent: 'center' },
-  previewName: { fontSize: 18, lineHeight: 26 },
+  previewName: { fontSize: 17, lineHeight: 24, flex: 1 },
+  typeRow: { flexDirection: 'row', gap: 8 },
+  typeChip: {
+    flex: 1,
+    paddingVertical: 10,
+    borderRadius: 10,
+    alignItems: 'center',
+    minHeight: 40,
+    justifyContent: 'center',
+  },
+  typeChipLabel: { fontSize: 13 },
+  saveBtn: { marginTop: 8 },
 });
