@@ -7,7 +7,8 @@ import {
   Coffee, Gamepad2, Dumbbell, Plane, Bus, Bike, Phone, Wifi,
   Music, Camera, Baby, Flower2, Pizza, ShoppingCart, Receipt,
   Stethoscope, GraduationCap, Trophy, DollarSign,
-  ArrowLeftRight, BarChart2, Globe, HelpCircle,
+  ArrowLeftRight, BarChart2, Globe, HelpCircle, Tag, Coins,
+  Fuel, Train, Scissors, Lightbulb, Wrench, Leaf, Sun, Moon,
 } from 'lucide-react-native';
 
 const ICON_MAP: Record<string, LucideIcon> = {
@@ -60,7 +61,19 @@ const ICON_MAP: Record<string, LucideIcon> = {
   ArrowLeftRight,
   BarChart2,
   Globe,
+  Tag,
+  Coins,
+  Fuel,
+  Train,
+  Scissors,
+  Lightbulb,
+  Wrench,
+  Leaf,
+  Sun,
+  Moon,
 };
+
+export const ALL_LUCIDE_ICON_NAMES = Object.keys(ICON_MAP);
 
 export function getLucideIcon(name: string): LucideIcon {
   return ICON_MAP[name] ?? HelpCircle;

@@ -9,6 +9,7 @@ import { Button } from '@/shared/components/Button';
 import { ColorPicker } from '@/shared/components/ColorPicker';
 import { ChipGroup } from '@/shared/components/ChipGroup';
 import { CurrencyInput } from '@/shared/components/CurrencyInput';
+import { IconPicker } from '@/shared/components/IconPicker';
 import { useRouter, useLocalSearchParams } from 'expo-router';
 import { database } from '@/shared/db';
 import { useToast } from '@/shared/components/Toast';
@@ -46,6 +47,7 @@ export default function FormDompetScreen() {
   const [currency, setCurrency] = useState('IDR');
   const [customCurrency, setCustomCurrency] = useState('');
   const [color, setColor] = useState('#8CC0EB');
+  const [icon, setIcon] = useState('Wallet');
   const [initialBalanceStr, setInitialBalanceStr] = useState('');
   const [initialBalanceNum, setInitialBalanceNum] = useState(0);
   const [loading, setLoading] = useState(false);
@@ -62,6 +64,7 @@ export default function FormDompetScreen() {
       setType(record.type as WalletType);
       setCurrency(record.currency);
       setColor(record.color);
+      setIcon(record.icon || 'Wallet');
       setInitialBalanceStr(String(record.balance));
       setInitialBalanceNum(record.balance);
     } catch {
@@ -84,6 +87,7 @@ export default function FormDompetScreen() {
           const record = await database.get<import('@/shared/db').WalletModel>('wallets').find(params.id);
           await record.update(() => {
             record.name = name.trim();
+            record.icon = icon;
             record.color = color;
             record.currency = finalCurrency;
             record.type = type;
@@ -91,7 +95,7 @@ export default function FormDompetScreen() {
         } else {
           await database.get<import('@/shared/db').WalletModel>('wallets').create((record) => {
             record.name = name.trim();
-            record.icon = 'Wallet';
+            record.icon = icon;
             record.color = color;
             record.currency = finalCurrency;
             record.balance = bal;
@@ -173,23 +177,16 @@ export default function FormDompetScreen() {
           </View>
         )}
 
+        {/* Ikon */}
+        <View style={styles.field}>
+          <Text style={[styles.label, { color: colors.textMuted, fontFamily: 'DMSans-Medium' }]}>Ikon</Text>
+          <IconPicker value={icon} color={color} onSelect={setIcon} />
+        </View>
+
         {/* Warna */}
         <View style={styles.field}>
           <Text style={[styles.label, { color: colors.textMuted, fontFamily: 'DMSans-Medium' }]}>Warna</Text>
           <ColorPicker value={color} onChange={setColor} />
-        </View>
-
-        {/* Preview */}
-        <View style={[styles.previewCard, { backgroundColor: `${color}18`, borderColor: color, borderWidth: 1 }]}>
-          <View style={[styles.previewDot, { backgroundColor: color }]} />
-          <View>
-            <Text style={[styles.previewName, { color: colors.textPrimary, fontFamily: 'DMSans-SemiBold' }]}>
-              {name || 'Nama Dompet'}
-            </Text>
-            <Text style={[styles.previewType, { color: colors.textMuted, fontFamily: 'DMSans-Regular' }]}>
-              {type} · {finalCurrency}
-            </Text>
-          </View>
         </View>
 
         <Button
@@ -212,12 +209,5 @@ const styles = StyleSheet.create({
   label: { fontSize: 13, lineHeight: 18 },
   input: { height: 48, borderRadius: 12, paddingHorizontal: 14, fontSize: 16, lineHeight: 24 },
   currencyInput: { height: 40, borderRadius: 10, paddingHorizontal: 12, fontSize: 14, lineHeight: 20, borderWidth: 1 },
-  previewCard: {
-    flexDirection: 'row', alignItems: 'center', gap: 14,
-    padding: 16, borderRadius: 14,
-  },
-  previewDot: { width: 20, height: 20, borderRadius: 10 },
-  previewName: { fontSize: 16, lineHeight: 22 },
-  previewType: { fontSize: 12, lineHeight: 16 },
   saveBtn: { marginTop: 8 },
 });

@@ -9,7 +9,9 @@ import { AppBar } from '@/shared/components/AppBar';
 import { Button } from '@/shared/components/Button';
 import { ColorPicker } from '@/shared/components/ColorPicker';
 import { ChipGroup } from '@/shared/components/ChipGroup';
+import { IconPicker } from '@/shared/components/IconPicker';
 import { useToast } from '@/shared/components/Toast';
+import { getLucideIcon } from '@/shared/utils/lucideIcons';
 import { database } from '@/shared/db';
 import type { CategoryType } from '@/shared/types';
 
@@ -29,6 +31,7 @@ export default function FormKategoriScreen() {
   const [name, setName] = useState('');
   const [type, setType] = useState<CategoryType>((params.type as CategoryType) ?? 'expense');
   const [color, setColor] = useState('#4CAF50');
+  const [icon, setIcon] = useState('Tag');
   const [loading, setLoading] = useState(false);
   const [initialLoading, setInitialLoading] = useState(isEdit);
 
@@ -44,6 +47,7 @@ export default function FormKategoriScreen() {
       setName(record.name);
       setType(record.type as CategoryType);
       setColor(record.color);
+      setIcon(record.icon || 'Tag');
     } catch {
       showToast('Kategori tidak ditemukan', 'error');
       router.back();
@@ -64,13 +68,14 @@ export default function FormKategoriScreen() {
           const record = await database.get<import('@/shared/db').CategoryModel>('categories').find(params.id);
           await record.update(() => {
             record.name = name.trim();
+            record.icon = icon;
             record.color = color;
             record.type = type;
           });
         } else {
           await database.get<import('@/shared/db').CategoryModel>('categories').create((record) => {
             record.name = name.trim();
-            record.icon = 'tag';
+            record.icon = icon;
             record.color = color;
             record.type = type;
             record.isDefault = false;
@@ -87,6 +92,8 @@ export default function FormKategoriScreen() {
   }
 
   if (initialLoading) return null;
+
+  const IconComp = getLucideIcon(icon);
 
   return (
     <View style={[styles.container, { backgroundColor: colors.bgPage }]}>
@@ -115,14 +122,21 @@ export default function FormKategoriScreen() {
           <ChipGroup options={TYPE_OPTIONS} value={type} onChange={setType} />
         </View>
 
+        {/* Ikon */}
+        <View style={styles.field}>
+          <Text style={[styles.label, { color: colors.textMuted, fontFamily: 'DMSans-Medium' }]}>Ikon</Text>
+          <IconPicker value={icon} color={color} onSelect={setIcon} />
+        </View>
+
         <View style={styles.field}>
           <Text style={[styles.label, { color: colors.textMuted, fontFamily: 'DMSans-Medium' }]}>Warna</Text>
           <ColorPicker value={color} onChange={setColor} />
         </View>
 
+        {/* Preview */}
         <View style={styles.preview}>
           <View style={[styles.previewIcon, { backgroundColor: `${color}22` }]}>
-            <View style={[styles.previewDot, { backgroundColor: color }]} />
+            <IconComp size={22} color={color} strokeWidth={1.8} />
           </View>
           <Text style={[styles.previewName, { color: colors.textPrimary, fontFamily: 'DMSans-SemiBold' }]}>
             {name || 'Nama Kategori'}
@@ -144,14 +158,16 @@ export default function FormKategoriScreen() {
 const styles = StyleSheet.create({
   container: { flex: 1 },
   content: { padding: 16, gap: 20 },
-  field: { gap: 10 },
+  field: { gap: 8 },
   label: { fontSize: 13, lineHeight: 18 },
   input: { height: 48, borderRadius: 12, paddingHorizontal: 14, fontSize: 16, lineHeight: 24 },
   preview: {
-    flexDirection: 'row', alignItems: 'center', gap: 12,
-    paddingVertical: 8, paddingHorizontal: 4,
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 12,
+    paddingVertical: 8,
+    paddingHorizontal: 4,
   },
   previewIcon: { width: 44, height: 44, borderRadius: 22, alignItems: 'center', justifyContent: 'center' },
-  previewDot: { width: 16, height: 16, borderRadius: 8 },
   previewName: { fontSize: 18, lineHeight: 26 },
 });

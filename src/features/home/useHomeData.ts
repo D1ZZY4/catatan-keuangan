@@ -16,6 +16,7 @@ export interface HomeWallet {
   type: string;
   balance: number;
   balanceFormatted: string;
+  showInDashboard: boolean;
 }
 
 export interface HomeTransaction extends Transaction {
@@ -75,6 +76,7 @@ export function useHomeData() {
         id: w.id, name: w.name, icon: w.icon, color: w.color,
         currency: w.currency, type: w.type, balance: w.balance,
         balanceFormatted: formatCurrency(w.balance, w.currency),
+        showInDashboard: w.showInDashboard,
       }));
 
       const totalBalance = wallets.reduce((s, w) => w.includeInTotal ? s + w.balance : s, 0);

@@ -102,7 +102,7 @@ export default function BerandaScreen() {
   const health = useMemo(() => calcHealthScore(totalBalance, monthIncome, monthExpense), [totalBalance, monthIncome, monthExpense]);
   const handleRefresh = useCallback(async () => { setRefreshing(true); await reload(); setRefreshing(false); }, [reload]);
   const handleAddWallet = useCallback(() => { router.push('/(modals)/form-dompet'); }, [router]);
-  const activeWallets = wallets;
+  const activeWallets = wallets.filter(w => w.showInDashboard !== false);
 
   const heroColor = health.score >= 80 ? colors.success : health.score >= 60 ? colors.accentPrimary : health.score >= 40 ? colors.warning : colors.danger;
   const heroBg = `${heroColor}15`;
