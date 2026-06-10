@@ -14,9 +14,7 @@ import * as LocalAuthentication from 'expo-local-authentication';
 import { SecureStorage } from '@/shared/utils/secureStorage';
 import { useTheme } from '@/shared/hooks/useTheme';
 import { useAuth } from '@/features/auth/AuthContext';
-import { database } from '@/shared/db';
-import { DEFAULT_WALLETS } from '@/shared/constants/defaultWallets';
-import { ALL_DEFAULT_CATEGORIES } from '@/shared/constants/defaultCategories';
+import { ensureSeeded } from '@/shared/utils/seedDatabase';
 import { ConfettiCannon, type ConfettiCannonRef } from '@/shared/components/ConfettiCannon';
 
 const ND = Platform.OS !== 'web';
@@ -515,7 +513,7 @@ export default function OnboardingScreen() {
     try {
       if (pin) await setupPin(pin);
       await SecureStorage.setItemAsync('user_name', name);
-      await seedInitialData();
+      await ensureSeeded();
       await SecureStorage.setItemAsync('onboarding_done', 'true');
       if (pin) {
         setShowBiometric(true);
@@ -527,37 +525,6 @@ export default function OnboardingScreen() {
     } finally {
       setLoading(false);
     }
-  }
-
-  async function seedInitialData() {
-    await database.write(async () => {
-      for (const cat of ALL_DEFAULT_CATEGORIES) {
-        await database.get<import('@/shared/db').CategoryModel>('categories').create(rec => {
-          rec.name = cat.name;
-          rec.icon = cat.icon;
-          rec.color = cat.color;
-          rec.type = cat.type;
-          rec.isDefault = cat.isDefault;
-        });
-      }
-      for (const wallet of DEFAULT_WALLETS) {
-        await database.get<import('@/shared/db').WalletModel>('wallets').create(rec => {
-          rec.name = wallet.name;
-          rec.icon = wallet.icon;
-          rec.color = wallet.color;
-          rec.currency = wallet.currency;
-          rec.balance = 0;
-          rec.initialBalance = 0;
-          rec.type = wallet.type;
-          rec.isArchived = false;
-          rec.showInDashboard = true;
-          rec.includeInTotal = true;
-          rec.sortOrder = wallet.sortOrder;
-          // @ts-expect-error set by WatermelonDB
-          rec._raw.created_at = Date.now();
-        });
-      }
-    });
   }
 
   // ── Conditional renders ──

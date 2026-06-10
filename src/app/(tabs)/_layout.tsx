@@ -1,9 +1,11 @@
+import { useEffect } from 'react';
 import { Tabs } from 'expo-router';
 import { StyleSheet, View, Pressable, Text, Platform } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Home, ArrowUpDown, BarChart3, Wallet, Settings } from 'lucide-react-native';
 import { useTheme } from '@/shared/hooks/useTheme';
 import { FAB } from '@/shared/components/FAB';
+import { ensureSeeded } from '@/shared/utils/seedDatabase';
 
 type TabNav = {
   emit: (args: { type: string; target: string; canPreventDefault?: boolean }) => { defaultPrevented: boolean };
@@ -98,6 +100,10 @@ function CustomTabBar({ state, navigation }: TabBarProps) {
 }
 
 export default function TabsLayout() {
+  useEffect(() => {
+    void ensureSeeded();
+  }, []);
+
   return (
     <>
       <Tabs

@@ -2,6 +2,7 @@ import React, { memo } from 'react';
 import { View, Text, Pressable, StyleSheet } from 'react-native';
 import { useTheme } from '@/shared/hooks/useTheme';
 import { formatCurrency } from '@/shared/utils/formatters';
+import { getLucideIcon } from '@/shared/utils/lucideIcons';
 
 const WALLET_TYPE_LABELS: Record<string, string> = {
   cash: 'Tunai',
@@ -15,13 +16,14 @@ const WALLET_TYPE_LABELS: Record<string, string> = {
 };
 
 interface WalletCardProps {
-  wallet: { id: string; name: string; color: string; currency: string; type: string; balance: number };
+  wallet: { id: string; name: string; icon?: string; color: string; currency: string; type: string; balance: number };
   onPress?: () => void;
 }
 
 export const WalletCard = memo(function WalletCard({ wallet, onPress }: WalletCardProps) {
   const { colors, shadows } = useTheme();
   const accentColor = wallet.color || colors.accentPrimary;
+  const IconComp = getLucideIcon(wallet.icon ?? '');
 
   return (
     <Pressable
@@ -36,15 +38,15 @@ export const WalletCard = memo(function WalletCard({ wallet, onPress }: WalletCa
       accessibilityRole="button"
     >
       {/* Color accent stripe at top */}
-      <View style={[styles.accentBar, { backgroundColor: `${accentColor}30` }]} />
+      <View style={[styles.accentBar, { backgroundColor: `${accentColor}40` }]} />
 
       <View style={styles.body}>
         {/* Header row: icon + type badge */}
         <View style={styles.header}>
-          <View style={[styles.iconBadge, { backgroundColor: `${accentColor}25` }]}>
-            <View style={[styles.colorDot, { backgroundColor: accentColor }]} />
+          <View style={[styles.iconBadge, { backgroundColor: `${accentColor}22` }]}>
+            <IconComp size={18} color={accentColor} strokeWidth={1.8} />
           </View>
-          <View style={[styles.typePill, { backgroundColor: `${accentColor}15` }]}>
+          <View style={[styles.typePill, { backgroundColor: `${accentColor}18` }]}>
             <Text style={[styles.typePillText, { color: accentColor, fontFamily: 'DMSans-SemiBold' }]}>
               {WALLET_TYPE_LABELS[wallet.type] ?? wallet.type}
             </Text>
@@ -93,13 +95,12 @@ const styles = StyleSheet.create({
     marginBottom: 6,
   },
   iconBadge: {
-    width: 34,
-    height: 34,
-    borderRadius: 17,
+    width: 36,
+    height: 36,
+    borderRadius: 18,
     alignItems: 'center',
     justifyContent: 'center',
   },
-  colorDot: { width: 14, height: 14, borderRadius: 7 },
   typePill: { paddingHorizontal: 8, paddingVertical: 3, borderRadius: 99 },
   typePillText: { fontSize: 10 },
   walletName: { fontSize: 14, lineHeight: 20 },

@@ -4,6 +4,7 @@ import { useAuth } from '@/features/auth/AuthContext';
 import { View, ActivityIndicator } from 'react-native';
 import { useTheme } from '@/shared/hooks/useTheme';
 import { SecureStorage } from '@/shared/utils/secureStorage';
+import { ensureSeeded } from '@/shared/utils/seedDatabase';
 
 export default function IndexScreen() {
   const router = useRouter();
@@ -17,10 +18,15 @@ export default function IndexScreen() {
 
   async function checkRouting() {
     const onboardingDone = await SecureStorage.getItemAsync('onboarding_done');
-    if (!onboardingDone || !isPinSet) {
+    if (!onboardingDone) {
       router.replace('/onboarding');
     } else {
-      router.replace('/auth');
+      await ensureSeeded();
+      if (isPinSet) {
+        router.replace('/auth');
+      } else {
+        router.replace('/(tabs)/beranda');
+      }
     }
   }
 
