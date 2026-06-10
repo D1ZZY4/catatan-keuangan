@@ -3,6 +3,22 @@ const path = require('path');
 
 const config = getDefaultConfig(__dirname);
 
+config.server = {
+  ...config.server,
+  enhanceMiddleware: (middleware) => middleware,
+};
+
+if (!config.server) config.server = {};
+config.server.rewriteRequestUrl = (url) => url;
+
+Object.assign(config, {
+  ...config,
+  server: {
+    ...config.server,
+    host: '0.0.0.0',
+  },
+});
+
 config.resolver.alias = {
   '@': './src',
 };
