@@ -76,6 +76,24 @@ export function formatDate(
   return date.toISOString().split('T')[0] ?? '';
 }
 
+export function formatDateShort(date: Date): string {
+  return new Intl.DateTimeFormat('id-ID', {
+    day: 'numeric',
+    month: 'short',
+  }).format(date);
+}
+
+export function formatMonthYear(date: Date): string {
+  return new Intl.DateTimeFormat('id-ID', {
+    month: 'short',
+    year: 'numeric',
+  }).format(date);
+}
+
+export function formatMonthKey(date: Date): string {
+  return new Intl.DateTimeFormat('id-ID', { month: 'short' }).format(date);
+}
+
 export function formatDateTime(timestamp: number): string {
   return new Intl.DateTimeFormat('id-ID', {
     day: 'numeric',

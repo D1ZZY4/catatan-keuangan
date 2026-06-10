@@ -1,7 +1,7 @@
 import { appSchema, tableSchema } from '@nozbe/watermelondb';
 
 export const dbSchema = appSchema({
-  version: 1,
+  version: 2,
   tables: [
     tableSchema({
       name: 'wallets',
@@ -103,6 +103,42 @@ export const dbSchema = appSchema({
         { name: 'amount', type: 'number' },
         { name: 'note', type: 'string' },
         { name: 'created_at', type: 'number' },
+      ],
+    }),
+    tableSchema({
+      name: 'tags',
+      columns: [
+        { name: 'name', type: 'string' },
+        { name: 'color', type: 'string', isOptional: true },
+        { name: 'use_count', type: 'number' },
+        { name: 'created_at', type: 'number' },
+      ],
+    }),
+    tableSchema({
+      name: 'price_cache',
+      columns: [
+        { name: 'symbol', type: 'string', isIndexed: true },
+        { name: 'price_idr', type: 'number' },
+        { name: 'price_usd', type: 'number', isOptional: true },
+        { name: 'change_24h', type: 'number', isOptional: true },
+        { name: 'source', type: 'string' },
+        { name: 'fetched_at', type: 'number' },
+      ],
+    }),
+    tableSchema({
+      name: 'settings',
+      columns: [
+        { name: 'key', type: 'string', isIndexed: true },
+        { name: 'value', type: 'string' },
+        { name: 'updated_at', type: 'number' },
+      ],
+    }),
+    tableSchema({
+      name: 'usage_patterns',
+      columns: [
+        { name: 'event_type', type: 'string', isIndexed: true },
+        { name: 'payload', type: 'string', isOptional: true },
+        { name: 'ts', type: 'number', isIndexed: true },
       ],
     }),
   ],
